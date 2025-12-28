@@ -36,19 +36,13 @@ public class AuthServiceImpl implements AuthService {
             throw new UserAlreadyExistsException("email already exists");
         }
 
-        // validate hotel id for manager and receptionist
-        if ((request.getRole() == Role.MANAGER || request.getRole() == Role.RECEPTIONIST)
-                && request.getHotelId() == null) {
-            throw new IllegalArgumentException("hotel id is required for manager and receptionist roles");
-        }
-
-        // create user entity
+        // force role to GUEST for public registration
         User user = new User();
         user.setUsername(request.getUsername());
         user.setEmail(request.getEmail());
         user.setPassword(passwordEncoder.encode(request.getPassword()));
-        user.setRole(request.getRole());
-        user.setHotelId(request.getHotelId());
+        user.setRole(Role.GUEST);
+        user.setHotelId(null);
         user.setFullName(request.getFullName());
         user.setPhoneNumber(request.getPhoneNumber());
         user.setActive(true);
@@ -88,6 +82,51 @@ public class AuthServiceImpl implements AuthService {
         return new AuthResponse(token, userResponse);
     }
 
+    @Override
+    @Transactional
+    public UserResponse createUser(RegisterRequest request, String adminRole) {
+        // validate that caller is admin
+        if (!"ADMIN".equals(adminRole)) {
+            throw new SecurityException("only admin can create users");
+        }
+
+        // check if username already exists
+        if (userRepository.existsByUsername(request.getUsername())) {
+            throw new UserAlreadyExistsException("username already exists");
+        }
+
+        // check if email already exists
+        if (userRepository.existsByEmail(request.getEmail())) {
+            throw new UserAlreadyExistsException("email already exists");
+        }
+
+        // validate role - only MANAGER and RECEPTIONIST allowed
+        if (request.getRole() != Role.MANAGER && request.getRole() != Role.RECEPTIONIST) {
+            throw new IllegalArgumentException("can only create MANAGER or RECEPTIONIST roles");
+        }
+
+        // validate hotel id for manager and receptionist
+        if (request.getHotelId() == null) {
+            throw new IllegalArgumentException("hotel id is required for manager and receptionist roles");
+        }
+
+        // create user entity
+        User user = new User();
+        user.setUsername(request.getUsername());
+        user.setEmail(request.getEmail());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setRole(request.getRole());
+        user.setHotelId(request.getHotelId());
+        user.setFullName(request.getFullName());
+        user.setPhoneNumber(request.getPhoneNumber());
+        user.setActive(true);
+
+        // save user
+        User savedUser = userRepository.save(user);
+
+        // return user response
+        return mapToUserResponse(savedUser);
+    }
     // helper method to map user entity to user response dto
     private UserResponse mapToUserResponse(User user) {
         UserResponse response = new UserResponse();
