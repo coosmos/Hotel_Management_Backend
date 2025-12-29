@@ -1,13 +1,11 @@
 package com.app.service;
 
-import com.app.dto.AuthResponse;
-import com.app.dto.LoginRequest;
-import com.app.dto.RegisterRequest;
-import com.app.dto.UserResponse;
+import com.app.dto.*;
 import com.app.entity.User;
 import com.app.enums.Role;
 import com.app.exception.InvalidCredentialsException;
 import com.app.exception.UserAlreadyExistsException;
+import com.app.exception.UserNotFoundException;
 import com.app.repository.UserRepository;
 import com.app.security.JwtUtil;
 import lombok.RequiredArgsConstructor;
@@ -23,9 +21,37 @@ public class AuthServiceImpl implements AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtUtil jwtUtil;
 
+
     @Override
     @Transactional
-    public AuthResponse register(RegisterRequest request) {
+    public void updateUsername(Long userId, String newUsername) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new UserNotFoundException("User not found"));
+
+        if (userRepository.existsByUsernameAndIdNot(newUsername, userId)) {
+            throw new UserAlreadyExistsException("Username already taken");
+        }
+
+        user.setUsername(newUsername);
+        userRepository.save(user);
+    }
+    @Override
+    public void changePassword(Long userId, ChangePasswordRequest request) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+        if(!passwordEncoder.matches(request.getOldPassword(),user.getPassword())){
+            throw new RuntimeException("old password doesn't match");
+        }
+        user.setPassword(passwordEncoder.encode(request.getNewPassword()));
+        userRepository.save(user);
+
+
+    }
+
+
+    @Override
+    @Transactional
+    public AuthResponse register(GuestRegisterRequest request) {
         // check if username already exists
         if (userRepository.existsByUsername(request.getUsername())) {
             throw new UserAlreadyExistsException("username already exists");

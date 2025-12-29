@@ -1,9 +1,6 @@
 package com.app.controller;
 
-import com.app.dto.AuthResponse;
-import com.app.dto.LoginRequest;
-import com.app.dto.RegisterRequest;
-import com.app.dto.UserResponse;
+import com.app.dto.*;
 import com.app.security.JwtUtil;
 import com.app.service.AuthService;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,7 +20,7 @@ public class AuthController {
     private final JwtUtil jwtUtil;
 
     @PostMapping("/register")
-    public ResponseEntity<AuthResponse> register(@Valid @RequestBody RegisterRequest request) {
+    public ResponseEntity<AuthResponse> register(@Valid @RequestBody GuestRegisterRequest request) {
         AuthResponse response = authService.register(request);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
@@ -45,4 +42,33 @@ public class AuthController {
         UserResponse response = authService.createUser(request, role);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
+    @PutMapping("/me/username")
+    public ResponseEntity<?> updateUsername(
+            @Valid @RequestBody UpdateUsernameRequest request,
+            HttpServletRequest httpRequest
+    ) {
+        String authHeader = httpRequest.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Missing or invalid Authorization header");
+        }
+        String token = authHeader.substring(7);
+        Long userId = jwtUtil.extractUserId(token);
+        authService.updateUsername(userId, request.getNewUsername());
+        return ResponseEntity.ok("username updated successfully");
+    }
+
+
+    @PutMapping("/me/password")
+    public ResponseEntity<?> changePassword(@Valid @RequestBody ChangePasswordRequest request,
+                                            HttpServletRequest httpRequest){
+        String authHeader = httpRequest.getHeader("Authorization");
+        if (authHeader == null || !authHeader.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Missing or invalid Authorization header");
+        }
+        String token= authHeader.substring(7);
+        Long userId=jwtUtil.extractUserId(token);
+        authService.changePassword(userId,request);
+        return ResponseEntity.ok("password changed successfully");
+    }
+
 }
