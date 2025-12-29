@@ -27,14 +27,11 @@ public class GlobalExceptionHandler implements ErrorWebExceptionHandler {
         if (response.isCommitted()) {
             return Mono.error(ex);
         }
-
         // Set content type
         response.getHeaders().setContentType(MediaType.APPLICATION_JSON);
-
         // Determine status code and message
         HttpStatus status;
         String message;
-
         if (ex instanceof NotFoundException) {
             status = HttpStatus.NOT_FOUND;
             message = "Service not found. The requested service might be down or unavailable.";
