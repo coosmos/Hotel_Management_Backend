@@ -34,18 +34,14 @@ public class HotelServiceImpl implements HotelService {
     @Transactional
     public HotelResponseDto createHotel(HotelRequestDto requestDto, Long userId) {
         log.info("Creating hotel: {} by user: {}", requestDto.getName(), userId);
-
         Hotel hotel = modelMapper.map(requestDto, Hotel.class);
         hotel.setCreatedBy(userId);
         hotel.setUpdatedBy(userId);
-
         if (hotel.getStatus() == null) {
             hotel.setStatus(HotelStatus.ACTIVE);
         }
-
         Hotel savedHotel = hotelRepository.save(hotel);
         log.info("Hotel created successfully with ID: {}", savedHotel.getId());
-
         return modelMapper.map(savedHotel, HotelResponseDto.class);
     }
 
@@ -54,17 +50,14 @@ public class HotelServiceImpl implements HotelService {
     public HotelResponseDto updateHotel(Long hotelId, HotelRequestDto requestDto,
                                         Long userId, String role, Long userHotelId) {
         log.info("Updating hotel: {} by user: {} with role: {}", hotelId, userId, role);
-
         Hotel hotel = hotelRepository.findById(hotelId)
                 .orElseThrow(() -> new ResourceNotFoundException("Hotel", "id", hotelId));
-
         // Authorization check
         if (UserRole.MANAGER.name().equals(role) || UserRole.RECEPTIONIST.name().equals(role)) {
             if (userHotelId == null || !userHotelId.equals(hotelId)) {
                 throw new ForbiddenException("You can only update your own hotel");
             }
         }
-
         // Update fields
         hotel.setName(requestDto.getName());
         hotel.setDescription(requestDto.getDescription());
@@ -77,34 +70,26 @@ public class HotelServiceImpl implements HotelService {
         hotel.setEmail(requestDto.getEmail());
         hotel.setStarRating(requestDto.getStarRating());
         hotel.setAmenities(requestDto.getAmenities());
-        hotel.setImageUrl(requestDto.getImageUrl());
-
         if (requestDto.getStatus() != null) {
             hotel.setStatus(requestDto.getStatus());
         }
-
         hotel.setUpdatedBy(userId);
-
         Hotel updatedHotel = hotelRepository.save(hotel);
         log.info("Hotel updated successfully: {}", hotelId);
-
         return modelMapper.map(updatedHotel, HotelResponseDto.class);
     }
 
     @Override
     public HotelResponseDto getHotelById(Long hotelId) {
         log.info("Fetching hotel by ID: {}", hotelId);
-
         Hotel hotel = hotelRepository.findById(hotelId)
                 .orElseThrow(() -> new ResourceNotFoundException("Hotel", "id", hotelId));
-
         return modelMapper.map(hotel, HotelResponseDto.class);
     }
 
     @Override
     public List<HotelResponseDto> getAllHotels() {
         log.info("Fetching all hotels");
-
         List<Hotel> hotels = hotelRepository.findAll();
         return hotels.stream()
                 .map(hotel -> modelMapper.map(hotel, HotelResponseDto.class))
@@ -147,7 +132,7 @@ public class HotelServiceImpl implements HotelService {
         log.info("Deleting hotel: {} by user: {} with role: {}", hotelId, userId, role);
 
         // Only ADMIN can delete hotels
-        if (!UserRole.ADMIN.name().equals(role)) {
+        if (!UserRole.ADMIN.name().equals(role)) {   // --TODO change ,edit userRoles to "Admin".equals(role)) later
             throw new ForbiddenException("Only administrators can delete hotels");
         }
 

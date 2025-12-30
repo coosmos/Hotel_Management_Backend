@@ -45,8 +45,6 @@ public class RoomRequestDto {
 
     private String description;
 
-    private String imageUrl;
-
     private RoomStatus status;
 
     private Boolean isActive;

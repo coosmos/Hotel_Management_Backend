@@ -55,8 +55,6 @@ public class Room {
 
     @Column(columnDefinition = "TEXT")
     private String description;
-    @Column(name = "image_url", length = 500)
-    private String imageUrl;
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private RoomStatus status = RoomStatus.AVAILABLE;

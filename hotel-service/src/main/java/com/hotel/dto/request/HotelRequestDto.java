@@ -45,7 +45,6 @@ public class HotelRequestDto {
 
     private String amenities; // Comma-separated
 
-    private String imageUrl;
 
     private HotelStatus status;
 }
