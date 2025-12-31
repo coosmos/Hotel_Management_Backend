@@ -38,40 +38,30 @@ public class RoomServiceImpl implements RoomService {
     @Transactional
     public RoomResponseDto createRoom(RoomRequestDto requestDto, Long userId,
                                       String role, Long userHotelId) {
-        log.info("Creating room for hotel: {} by user: {}", requestDto.getHotelId(), userId);
-
         // Authorization check
         validateHotelAccess(requestDto.getHotelId(), role, userHotelId, "create rooms for");
-
         // Check if hotel exists
         Hotel hotel = hotelRepository.findById(requestDto.getHotelId())
                 .orElseThrow(() -> new ResourceNotFoundException("Hotel", "id", requestDto.getHotelId()));
-
         // Check if room number already exists for this hotel
         if (roomRepository.existsByHotelIdAndRoomNumber(requestDto.getHotelId(), requestDto.getRoomNumber())) {
             throw new BadRequestException("Room number " + requestDto.getRoomNumber() +
                     " already exists for this hotel");
         }
-
         Room room = modelMapper.map(requestDto, Room.class);
         room.setHotel(hotel);
         room.setCreatedBy(userId);
         room.setUpdatedBy(userId);
-
         if (room.getStatus() == null) {
             room.setStatus(RoomStatus.AVAILABLE);
         }
         if (room.getIsActive() == null) {
             room.setIsActive(true);
         }
-
         Room savedRoom = roomRepository.save(room);
-
         // Update hotel room counts
         hotelService.updateHotelRoomCounts(requestDto.getHotelId());
-
         log.info("Room created successfully with ID: {}", savedRoom.getId());
-
         return convertToResponseDto(savedRoom);
     }
 

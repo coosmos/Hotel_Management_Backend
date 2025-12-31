@@ -18,16 +18,13 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
-@RequestMapping("/api/rooms")
+@RequestMapping("/api/hotels/rooms")
 @RequiredArgsConstructor
 @Slf4j
 public class RoomController {
 
     private final RoomService roomService;
-
-    /**
-     * Create a new room (ADMIN or MANAGER of that hotel)
-     */
+        //create a new room admin / manager
     @PostMapping
     public ResponseEntity<ApiResponse<RoomResponseDto>> createRoom(
             @Valid @RequestBody RoomRequestDto requestDto,
@@ -45,9 +42,7 @@ public class RoomController {
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
-    /**
-     * Update room (ADMIN or MANAGER of that hotel)
-     */
+    //update room admin / manager
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<RoomResponseDto>> updateRoom(
             @PathVariable Long id,
@@ -66,9 +61,7 @@ public class RoomController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * Update room status (MANAGER or RECEPTIONIST of that hotel)
-     */
+    // update room status admin / manager
     @PatchMapping("/{id}/status")
     public ResponseEntity<ApiResponse<RoomResponseDto>> updateRoomStatus(
             @PathVariable Long id,
@@ -86,10 +79,7 @@ public class RoomController {
 
         return ResponseEntity.ok(response);
     }
-
-    /**
-     * Get room by ID (All authenticated users)
-     */
+    // get room by id all users
     @GetMapping("/{id}")
     public ResponseEntity<ApiResponse<RoomResponseDto>> getRoomById(
             @PathVariable Long id,
@@ -103,10 +93,7 @@ public class RoomController {
 
         return ResponseEntity.ok(response);
     }
-
-    /**
-     * Get all rooms for a hotel (All authenticated users)
-     */
+     // Get all rooms for a hotel (all authenticated users)
     @GetMapping("/hotel/{hotelId}")
     public ResponseEntity<ApiResponse<List<RoomResponseDto>>> getRoomsByHotelId(
             @PathVariable Long hotelId,

@@ -51,7 +51,7 @@ public class Room {
     private Integer roomSize;
 
     @Column(columnDefinition = "TEXT")
-    private String amenities; // Comma-separated: AC, WiFi, TV, Mini Bar, etc.
+    private String amenities; // AC, WiFi, TV, Mini Bar, etc.
 
     @Column(columnDefinition = "TEXT")
     private String description;
