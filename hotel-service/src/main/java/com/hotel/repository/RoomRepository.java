@@ -13,39 +13,15 @@ import java.util.Optional;
 
 @Repository
 public interface RoomRepository extends JpaRepository<Room, Long> {
-
-    // Find all rooms by hotel
     List<Room> findByHotelId(Long hotelId);
-
-    // Find rooms by hotel and status
     List<Room> findByHotelIdAndStatus(Long hotelId, RoomStatus status);
-
-    // Find available rooms by hotel
     List<Room> findByHotelIdAndStatusAndIsActive(Long hotelId, RoomStatus status, Boolean isActive);
-
-    // Find rooms by hotel and room type
     List<Room> findByHotelIdAndRoomType(Long hotelId, RoomType roomType);
-
-    // Check if room number exists for a hotel
     boolean existsByHotelIdAndRoomNumber(Long hotelId, String roomNumber);
-
-    // Find room by hotel and room number
     Optional<Room> findByHotelIdAndRoomNumber(Long hotelId, String roomNumber);
-
-    // Count rooms by hotel
     long countByHotelId(Long hotelId);
-
-    // Count available rooms by hotel
     long countByHotelIdAndStatus(Long hotelId, RoomStatus status);
-
-    // Find rooms by price range
-    List<Room> findByHotelIdAndPricePerNightBetweenAndStatus(
-            Long hotelId,
-            BigDecimal minPrice,
-            BigDecimal maxPrice,
-            RoomStatus status);
-
-    // Custom query: Search rooms with filters
+    List<Room> findByHotelIdAndPricePerNightBetweenAndStatus(Long hotelId, BigDecimal minPrice, BigDecimal maxPrice, RoomStatus status);
     @Query("SELECT r FROM Room r WHERE r.hotel.id = :hotelId " +
             "AND r.isActive = true " +
             "AND (:status IS NULL OR r.status = :status) " +
@@ -58,7 +34,6 @@ public interface RoomRepository extends JpaRepository<Room, Long> {
                            @Param("minPrice") BigDecimal minPrice,
                            @Param("maxPrice") BigDecimal maxPrice);
 
-    // Custom query: Get room count by status for a hotel
     @Query("SELECT r.status, COUNT(r) FROM Room r WHERE r.hotel.id = :hotelId GROUP BY r.status")
     List<Object[]> getRoomStatusCountByHotel(@Param("hotelId") Long hotelId);
 }

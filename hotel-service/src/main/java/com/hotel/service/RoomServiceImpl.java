@@ -50,8 +50,6 @@ public class RoomServiceImpl implements RoomService {
         }
         Room room = modelMapper.map(requestDto, Room.class);
         room.setHotel(hotel);
-        room.setCreatedBy(userId);
-        room.setUpdatedBy(userId);
         if (room.getStatus() == null) {
             room.setStatus(RoomStatus.AVAILABLE);
         }
@@ -95,8 +93,6 @@ public class RoomServiceImpl implements RoomService {
             room.setIsActive(requestDto.getIsActive());
         }
 
-        room.setUpdatedBy(userId);
-
         Room updatedRoom = roomRepository.save(room);
 
         // Update hotel room counts
@@ -109,8 +105,7 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     @Transactional
-    public RoomResponseDto updateRoomStatus(Long roomId, UpdateRoomStatusDto statusDto,
-                                            Long userId, String role, Long userHotelId) {
+    public RoomResponseDto updateRoomStatus(Long roomId, UpdateRoomStatusDto statusDto, Long userId, String role, Long userHotelId) {
         log.info("Updating room status: {} to {} by user: {}", roomId, statusDto.getStatus(), userId);
 
         Room room = roomRepository.findById(roomId)
@@ -149,7 +144,6 @@ public class RoomServiceImpl implements RoomService {
                 .map(this::convertToResponseDto)
                 .collect(Collectors.toList());
     }
-
     @Override
     public List<RoomResponseDto> getAvailableRoomsByHotelId(Long hotelId) {
         log.info("Fetching available rooms for hotel: {}", hotelId);
@@ -160,11 +154,8 @@ public class RoomServiceImpl implements RoomService {
                 .map(this::convertToResponseDto)
                 .collect(Collectors.toList());
     }
-
     @Override
-    public List<RoomResponseDto> searchRooms(Long hotelId, RoomStatus status,
-                                             RoomType roomType, BigDecimal minPrice,
-                                             BigDecimal maxPrice) {
+    public List<RoomResponseDto> searchRooms(Long hotelId, RoomStatus status, RoomType roomType, BigDecimal minPrice, BigDecimal maxPrice) {
         log.info("Searching rooms for hotel: {} with filters", hotelId);
 
         List<Room> rooms = roomRepository.searchRooms(hotelId, status, roomType, minPrice, maxPrice);
@@ -199,9 +190,8 @@ public class RoomServiceImpl implements RoomService {
     // Helper method to validate hotel access
     private void validateHotelAccess(Long hotelId, String role, Long userHotelId, String action) {
         if (UserRole.ADMIN.name().equals(role)) {
-            return; // ADMIN has access to all hotels
+            return; // admin has access to all hotels
         }
-
         if (UserRole.MANAGER.name().equals(role) || UserRole.RECEPTIONIST.name().equals(role)) {
             if (userHotelId == null || !userHotelId.equals(hotelId)) {
                 throw new ForbiddenException("You can only " + action + " your own hotel");
@@ -210,8 +200,6 @@ public class RoomServiceImpl implements RoomService {
             throw new ForbiddenException("Guests cannot " + action + " hotels");
         }
     }
-
-    // Helper method to convert Room to RoomResponseDto
     private RoomResponseDto convertToResponseDto(Room room) {
         RoomResponseDto dto = modelMapper.map(room, RoomResponseDto.class);
         dto.setHotelId(room.getHotel().getId());

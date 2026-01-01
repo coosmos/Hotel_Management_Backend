@@ -22,60 +22,37 @@ public class Hotel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
     @Column(nullable = false, length = 200)
     private String name;
-
     @Column(columnDefinition = "TEXT")
     private String description;
-
     @Column(nullable = false)
     private String address;
-
     @Column(nullable = false, length = 100)
     private String city;
-
     @Column(nullable = false, length = 100)
     private String state;
-
     @Column(nullable = false, length = 100)
     private String country;
-
     @Column(length = 10)
     private String pincode;
-
     @Column(name = "contact_number", length = 15)
     private String contactNumber;
-
     @Column(name = "email", length = 100)
     private String email;
-
     @Column(name = "star_rating")
     private Integer starRating; // 1-5
-
     @Column(columnDefinition = "TEXT")
     private String amenities; // Comma-separated or JSON string
-
-
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private HotelStatus status = HotelStatus.ACTIVE;
-
-    // Audit fields
-    @Column(name = "created_by")
-    private Long createdBy; // User ID who created
-
-    @Column(name = "updated_by")
-    private Long updatedBy; // User ID who last updated
-
     @CreationTimestamp
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
-
     @UpdateTimestamp
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
-
     // One-to-Many relationship with Room
 //    @OneToMany(mappedBy = "hotel", cascade = CascadeType.ALL, orphanRemoval = true)
     @OneToMany(mappedBy = "hotel")

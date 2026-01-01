@@ -107,10 +107,6 @@ public class RoomController {
 
         return ResponseEntity.ok(response);
     }
-
-    /**
-     * Get available rooms for a hotel (All authenticated users - especially GUEST)
-     */
     @GetMapping("/hotel/{hotelId}")
     public ResponseEntity<ApiResponse<List<RoomResponseDto>>> getAvailableRoomsByHotelId(
             @PathVariable Long hotelId,
@@ -125,9 +121,6 @@ public class RoomController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * Search rooms with filters (All authenticated users)
-     */
     @GetMapping("/hotel/{hotelId}/search")
     public ResponseEntity<ApiResponse<List<RoomResponseDto>>> searchRooms(
             @PathVariable Long hotelId,
@@ -146,10 +139,6 @@ public class RoomController {
 
         return ResponseEntity.ok(response);
     }
-
-    /**
-     * Delete room (ADMIN or MANAGER of that hotel)
-     */
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteRoom(
             @PathVariable Long id,

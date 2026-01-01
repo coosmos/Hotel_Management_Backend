@@ -35,8 +35,6 @@ public class HotelServiceImpl implements HotelService {
     public HotelResponseDto createHotel(HotelRequestDto requestDto, Long userId) {
         log.info("Creating hotel: {} by user: {}", requestDto.getName(), userId);
         Hotel hotel = modelMapper.map(requestDto, Hotel.class);
-        hotel.setCreatedBy(userId);
-        hotel.setUpdatedBy(userId);
         if (hotel.getStatus() == null) {
             hotel.setStatus(HotelStatus.ACTIVE);
         }
@@ -73,7 +71,6 @@ public class HotelServiceImpl implements HotelService {
         if (requestDto.getStatus() != null) {
             hotel.setStatus(requestDto.getStatus());
         }
-        hotel.setUpdatedBy(userId);
         Hotel updatedHotel = hotelRepository.save(hotel);
         log.info("Hotel updated successfully: {}", hotelId);
         return modelMapper.map(updatedHotel, HotelResponseDto.class);
@@ -141,7 +138,6 @@ public class HotelServiceImpl implements HotelService {
 
         // Soft delete - change status to INACTIVE
         hotel.setStatus(HotelStatus.INACTIVE);
-        hotel.setUpdatedBy(userId);
         hotelRepository.save(hotel);
 
         log.info("Hotel soft deleted successfully: {}", hotelId);

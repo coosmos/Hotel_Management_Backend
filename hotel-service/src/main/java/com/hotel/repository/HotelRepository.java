@@ -13,39 +13,26 @@ import java.util.Optional;
 @Repository
 public interface HotelRepository extends JpaRepository<Hotel, Long> {
 
-    // Find hotels by status
     List<Hotel> findByStatus(HotelStatus status);
-
-    // Find active hotels
     List<Hotel> findByStatusOrderByNameAsc(HotelStatus status);
-
     // Find hotels by city
     List<Hotel> findByCityAndStatus(String city, HotelStatus status);
-
     // Find hotels by city (case-insensitive)
     List<Hotel> findByCityIgnoreCaseAndStatus(String city, HotelStatus status);
-
     // Find hotels by state
     List<Hotel> findByStateAndStatus(String state, HotelStatus status);
-
     // Search hotels by name (case-insensitive, partial match)
     List<Hotel> findByNameContainingIgnoreCaseAndStatus(String name, HotelStatus status);
-
     // Find hotels by star rating
     List<Hotel> findByStarRatingGreaterThanEqualAndStatus(Integer starRating, HotelStatus status);
-
-    // Custom query: Find hotels with available rooms
+    //Find hotels with available rooms
     @Query("SELECT h FROM Hotel h WHERE h.status = :status AND h.availableRooms > 0")
     List<Hotel> findHotelsWithAvailableRooms(@Param("status") HotelStatus status);
-
-    // Custom query: Advanced search
     @Query("SELECT h FROM Hotel h WHERE h.status = :status " +
             "AND (:city IS NULL OR LOWER(h.city) = LOWER(:city)) "
             )
     List<Hotel> searchHotels(@Param("status") HotelStatus status,
                              @Param("city") String city
                             );
-
-    // Check if hotel exists and is active
     boolean existsByIdAndStatus(Long id, HotelStatus status);
 }
