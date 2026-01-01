@@ -81,7 +81,7 @@ public class Hotel {
     @OneToMany(mappedBy = "hotel")
     private List<Room> rooms = new ArrayList<>();
 
-    // Total rooms count (denormalized for performance)
+    // Total rooms count
     @Column(name = "total_rooms")
     private Integer totalRooms = 0;
 

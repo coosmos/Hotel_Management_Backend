@@ -19,7 +19,6 @@ public class DataSeeder implements CommandLineRunner {
 
     @Override
     public void run(String... args) throws Exception {
-        // check if admin already exists
         if (userRepository.findByUsername("admin").isEmpty()) {
             User admin = new User();
             admin.setUsername("admin");
@@ -29,7 +28,6 @@ public class DataSeeder implements CommandLineRunner {
             admin.setFullName("System Administrator");
             admin.setPhoneNumber("0000000000");
             admin.setActive(true);
-
             userRepository.save(admin);
             log.info("default admin user created successfully");
         } else {

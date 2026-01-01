@@ -40,11 +40,11 @@ public interface HotelRepository extends JpaRepository<Hotel, Long> {
 
     // Custom query: Advanced search
     @Query("SELECT h FROM Hotel h WHERE h.status = :status " +
-            "AND (:city IS NULL OR LOWER(h.city) = LOWER(:city)) " +
-            "AND (:minRating IS NULL OR h.starRating >= :minRating)")
+            "AND (:city IS NULL OR LOWER(h.city) = LOWER(:city)) "
+            )
     List<Hotel> searchHotels(@Param("status") HotelStatus status,
-                             @Param("city") String city,
-                             @Param("minRating") Integer minRating);
+                             @Param("city") String city
+                            );
 
     // Check if hotel exists and is active
     boolean existsByIdAndStatus(Long id, HotelStatus status);

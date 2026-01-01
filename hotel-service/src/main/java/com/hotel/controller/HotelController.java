@@ -100,16 +100,13 @@ public class HotelController {
     @GetMapping("/search")
     public ResponseEntity<ApiResponse<List<HotelResponseDto>>> searchHotels(
             @RequestParam(required = false) String city,
-            @RequestParam(required = false) Integer minRating,
             @RequestHeader("X-User-Id") Long userId) {
 
-        log.info("Search hotels request from user: {} with city: {} and minRating: {}",
-                userId, city, minRating);
-
-        List<HotelResponseDto> hotels = hotelService.searchHotels(city, minRating);
+        log.info("Search hotels request from user: {} with city: {}",
+                userId, city);
+        List<HotelResponseDto> hotels = hotelService.searchHotels(city);
         ApiResponse<List<HotelResponseDto>> response = ApiResponse.success(
                 "Hotels search completed successfully", hotels);
-
         return ResponseEntity.ok(response);
     }
 

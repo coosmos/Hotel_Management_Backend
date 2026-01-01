@@ -111,7 +111,7 @@ public class RoomController {
     /**
      * Get available rooms for a hotel (All authenticated users - especially GUEST)
      */
-    @GetMapping("/hotel/{hotelId}/available")
+    @GetMapping("/hotel/{hotelId}")
     public ResponseEntity<ApiResponse<List<RoomResponseDto>>> getAvailableRoomsByHotelId(
             @PathVariable Long hotelId,
             @RequestHeader("X-User-Id") Long userId) {

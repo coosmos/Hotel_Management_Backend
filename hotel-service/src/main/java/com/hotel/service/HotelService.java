@@ -14,7 +14,7 @@ public interface HotelService {
     HotelResponseDto getHotelById(Long hotelId);
     List<HotelResponseDto> getAllHotels();
     List<HotelResponseDto> getActiveHotels();
-    List<HotelResponseDto> searchHotels(String city, Integer minRating);
+    List<HotelResponseDto> searchHotels(String city);
     HotelResponseDto getMyHotel(Long hotelId);
     void deleteHotel(Long hotelId, Long userId, String role);
     void updateHotelRoomCounts(Long hotelId);

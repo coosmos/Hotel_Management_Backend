@@ -47,33 +47,27 @@ public class JwtUtil {
                 .parseSignedClaims(token)
                 .getPayload();
     }
-
-    // Get the signing key
     private SecretKey getSignInKey() {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
     }
 
-    // Check if token is expired
     private Boolean isTokenExpired(String token) {
         return extractExpiration(token).before(new Date());
     }
 
-    // Validate token - checks both signature and expiration
     public Boolean validateToken(String token) {
         try {
-            // This will validate signature and structure
             Claims claims = extractAllClaims(token);
-            // Also check expiration
             return !claims.getExpiration().before(new Date());
         } catch (io.jsonwebtoken.ExpiredJwtException e) {
-            return false; // Token expired
+            return false;
         } catch (io.jsonwebtoken.security.SignatureException e) {
-            return false; // Invalid signature
+            return false;
         } catch (io.jsonwebtoken.MalformedJwtException e) {
-            return false; // Malformed token
+            return false;
         } catch (Exception e) {
-            return false; // Any other error
+            return false;
         }
     }
 }

@@ -107,10 +107,10 @@ public class HotelServiceImpl implements HotelService {
     }
 
     @Override
-    public List<HotelResponseDto> searchHotels(String city, Integer minRating) {
-        log.info("Searching hotels with city: {} and minRating: {}", city, minRating);
+    public List<HotelResponseDto> searchHotels(String city) {
+        log.info("Searching hotels with city: {} and minRating: {}", city);
 
-        List<Hotel> hotels = hotelRepository.searchHotels(HotelStatus.ACTIVE, city, minRating);
+        List<Hotel> hotels = hotelRepository.searchHotels(HotelStatus.ACTIVE, city);
         return hotels.stream()
                 .map(hotel -> modelMapper.map(hotel, HotelResponseDto.class))
                 .collect(Collectors.toList());
