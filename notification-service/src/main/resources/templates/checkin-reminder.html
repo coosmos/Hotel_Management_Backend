@@ -1,22 +1,69 @@
+
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Check-in Reminder</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .header { background-color: #ea580c; color: white; padding: 30px; text-align: center; }
+        .content { padding: 30px; }
+        .reminder-box { background-color: #fff7ed; border-left: 4px solid #ea580c; padding: 20px; margin: 20px 0; }
+        .booking-details { background-color: #f8f9fa; padding: 20px; border-radius: 6px; margin: 20px 0; }
+        .detail-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #dee2e6; }
+        .detail-label { font-weight: bold; color: #495057; }
+        .detail-value { color: #212529; }
+        .footer { background-color: #f8f9fa; padding: 20px; text-align: center; color: #6c757d; font-size: 14px; }
+    </style>
 </head>
 <body>
-<h2>Check-in Reminder</h2>
+<div class="container">
+    <div class="header">
+        <h1>⏰ Check-in Reminder</h1>
+    </div>
+    <div class="content">
+        <p>Dear <strong th:text="${guestName}">Guest</strong>,</p>
 
-<p>Hi <b th:text="${event.guestName}">Guest</b>,</p>
+        <div class="reminder-box">
+            <h3 style="margin-top: 0; color: #ea580c;">Your check-in is tomorrow!</h3>
+            <p style="margin: 0;">We're excited to welcome you soon. Here are your booking details:</p>
+        </div>
 
-<p>This is a reminder for your upcoming stay.</p>
+        <div class="booking-details">
+            <div class="detail-row">
+                <span class="detail-label">Booking ID:</span>
+                <span class="detail-value" th:text="${bookingId}">12345</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Hotel:</span>
+                <span class="detail-value" th:text="${hotelName}">Grand Hotel</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Room Number:</span>
+                <span class="detail-value" th:text="${roomNumber}">101</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Check-in Date:</span>
+                <span class="detail-value" th:text="${checkInDate}">January 15, 2024</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Check-out Date:</span>
+                <span class="detail-value" th:text="${checkOutDate}">January 18, 2024</span>
+            </div>
+            <div class="detail-row" style="border-bottom: none;">
+                <span class="detail-label">Special Requests:</span>
+                <span class="detail-value" th:text="${specialRequests}">None</span>
+            </div>
+        </div>
 
-<ul>
-    <li>Hotel: <span th:text="${event.hotelName}"></span></li>
-    <li>Room: <span th:text="${event.roomNumber}"></span></li>
-    <li>Check-in Date: <span th:text="${event.checkInDate}"></span></li>
-</ul>
-
-<p>See you soon.</p>
+        <p><strong>Check-in time:</strong> 3:00 PM onwards</p>
+        <p>Please bring a valid ID and your booking confirmation.</p>
+        <p style="margin-top: 30px;">See you soon!<br><strong>Hotel Management Team</strong></p>
+    </div>
+    <div class="footer">
+        <p>This is an automated message. Please do not reply to this email.</p>
+    </div>
+</div>
 </body>
 </html>

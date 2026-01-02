@@ -2,21 +2,63 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Thank You</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 20px; }
+        .container { max-width: 600px; margin: 0 auto; background-color: #ffffff; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+        .header { background-color: #7c3aed; color: white; padding: 30px; text-align: center; }
+        .content { padding: 30px; }
+        .thankyou-box { background-color: #faf5ff; border-left: 4px solid #7c3aed; padding: 20px; margin: 20px 0; }
+        .booking-details { background-color: #f8f9fa; padding: 20px; border-radius: 6px; margin: 20px 0; }
+        .detail-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px solid #dee2e6; }
+        .detail-label { font-weight: bold; color: #495057; }
+        .detail-value { color: #212529; }
+        .footer { background-color: #f8f9fa; padding: 20px; text-align: center; color: #6c757d; font-size: 14px; }
+    </style>
 </head>
 <body>
-<h2>Thank You for Staying With Us</h2>
+<div class="container">
+    <div class="header">
+        <h1>👋 Thank You!</h1>
+    </div>
+    <div class="content">
+        <p>Dear <strong th:text="${guestName}">Guest</strong>,</p>
 
-<p>Hi <b th:text="${event.guestName}">Guest</b>,</p>
+        <div class="thankyou-box">
+            <h3 style="margin-top: 0; color: #7c3aed;">Thank you for staying with us!</h3>
+            <p style="margin: 0;">We hope you had a wonderful experience.</p>
+        </div>
 
-<p>We hope you had a great stay.</p>
+        <div class="booking-details">
+            <div class="detail-row">
+                <span class="detail-label">Booking ID:</span>
+                <span class="detail-value" th:text="${bookingId}">12345</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Check-out Time:</span>
+                <span class="detail-value" th:text="${checkedOutTime}">11:00 AM</span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Stay Period:</span>
+                <span class="detail-value"><span th:text="${checkInDate}">Jan 15</span> - <span th:text="${checkOutDate}">Jan 18</span></span>
+            </div>
+            <div class="detail-row">
+                <span class="detail-label">Your Rating:</span>
+                <span class="detail-value" th:text="${rating}">5</span>
+            </div>
+            <div class="detail-row" style="border-bottom: none;">
+                <span class="detail-label">Your Feedback:</span>
+                <span class="detail-value" th:text="${feedback}">Great stay!</span>
+            </div>
+        </div>
 
-<ul>
-    <li>Booking ID: <span th:text="${event.bookingId}"></span></li>
-    <li>Checked-out At: <span th:text="${event.checkedOutAt}"></span></li>
-    <li>Rating: <span th:text="${event.rating}"></span></li>
-</ul>
-
-<p>We’d love to see you again.</p>
+        <p>Your invoice has been sent to your email separately. You can also download it from your booking history.</p>
+        <p>We hope to welcome you again soon! If you enjoyed your stay, please consider leaving a review.</p>
+        <p style="margin-top: 30px;">Safe travels!<br><strong>Hotel Management Team</strong></p>
+    </div>
+    <div class="footer">
+        <p>This is an automated message. Please do not reply to this email.</p>
+    </div>
+</div>
 </body>
 </html>
