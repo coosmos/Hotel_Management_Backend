@@ -128,7 +128,6 @@ public class RoomServiceImpl implements RoomService {
     @Override
     public RoomResponseDto getRoomById(Long roomId) {
         log.info("Fetching room by ID: {}", roomId);
-
         Room room = roomRepository.findById(roomId)
                 .orElseThrow(() -> new ResourceNotFoundException("Room", "id", roomId));
 

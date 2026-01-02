@@ -14,14 +14,10 @@ import java.util.Optional;
 @Repository
 public interface RoomRepository extends JpaRepository<Room, Long> {
     List<Room> findByHotelId(Long hotelId);
-    List<Room> findByHotelIdAndStatus(Long hotelId, RoomStatus status);
     List<Room> findByHotelIdAndStatusAndIsActive(Long hotelId, RoomStatus status, Boolean isActive);
-    List<Room> findByHotelIdAndRoomType(Long hotelId, RoomType roomType);
     boolean existsByHotelIdAndRoomNumber(Long hotelId, String roomNumber);
-    Optional<Room> findByHotelIdAndRoomNumber(Long hotelId, String roomNumber);
     long countByHotelId(Long hotelId);
     long countByHotelIdAndStatus(Long hotelId, RoomStatus status);
-    List<Room> findByHotelIdAndPricePerNightBetweenAndStatus(Long hotelId, BigDecimal minPrice, BigDecimal maxPrice, RoomStatus status);
     @Query("SELECT r FROM Room r WHERE r.hotel.id = :hotelId " +
             "AND r.isActive = true " +
             "AND (:status IS NULL OR r.status = :status) " +

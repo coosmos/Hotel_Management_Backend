@@ -37,18 +37,13 @@ public class HotelController {
                 "Hotel created successfully", hotel);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
-    //update hotel admin or manager
+    //update hotel-details   admin/manager
     @PutMapping("/{id}")
-    public ResponseEntity<ApiResponse<HotelResponseDto>> updateHotel(
-            @PathVariable Long id,
-            @Valid @RequestBody HotelRequestDto requestDto,
-            @RequestHeader("X-User-Id") Long userId,
-            @RequestHeader("X-User-Role") String role,
-            @RequestHeader(value = "X-Hotel-Id", required = false) Long userHotelId) {
-
+    public ResponseEntity<ApiResponse<HotelResponseDto>> updateHotel(@PathVariable Long id, @Valid @RequestBody HotelRequestDto requestDto,
+                                                                     @RequestHeader("X-User-Id") Long userId, @RequestHeader("X-User-Role") String role,
+                                                                     @RequestHeader(value = "X-Hotel-Id", required = false) Long userHotelId) {
         log.info("Update hotel request for hotel: {} from user: {} with role: {}",
                 id, userId, role);
-        // Authorization handled in service layer
         HotelResponseDto hotel = hotelService.updateHotel(id, requestDto, userId, role, userHotelId);
         ApiResponse<HotelResponseDto> response = ApiResponse.success(
                 "Hotel updated successfully", hotel);

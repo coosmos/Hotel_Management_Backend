@@ -15,17 +15,6 @@ public interface HotelRepository extends JpaRepository<Hotel, Long> {
 
     List<Hotel> findByStatus(HotelStatus status);
     List<Hotel> findByStatusOrderByNameAsc(HotelStatus status);
-    // Find hotels by city
-    List<Hotel> findByCityAndStatus(String city, HotelStatus status);
-    // Find hotels by city (case-insensitive)
-    List<Hotel> findByCityIgnoreCaseAndStatus(String city, HotelStatus status);
-    // Find hotels by state
-    List<Hotel> findByStateAndStatus(String state, HotelStatus status);
-    // Search hotels by name (case-insensitive, partial match)
-    List<Hotel> findByNameContainingIgnoreCaseAndStatus(String name, HotelStatus status);
-    // Find hotels by star rating
-    List<Hotel> findByStarRatingGreaterThanEqualAndStatus(Integer starRating, HotelStatus status);
-    //Find hotels with available rooms
     @Query("SELECT h FROM Hotel h WHERE h.status = :status AND h.availableRooms > 0")
     List<Hotel> findHotelsWithAvailableRooms(@Param("status") HotelStatus status);
     @Query("SELECT h FROM Hotel h WHERE h.status = :status " +

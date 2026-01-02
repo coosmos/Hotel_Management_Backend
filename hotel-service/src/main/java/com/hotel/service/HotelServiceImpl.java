@@ -96,7 +96,6 @@ public class HotelServiceImpl implements HotelService {
     @Override
     public List<HotelResponseDto> getActiveHotels() {
         log.info("Fetching active hotels");
-
         List<Hotel> hotels = hotelRepository.findByStatusOrderByNameAsc(HotelStatus.ACTIVE);
         return hotels.stream()
                 .map(hotel -> modelMapper.map(hotel, HotelResponseDto.class))
@@ -106,7 +105,6 @@ public class HotelServiceImpl implements HotelService {
     @Override
     public List<HotelResponseDto> searchHotels(String city) {
         log.info("Searching hotels with city: {} and minRating: {}", city);
-
         List<Hotel> hotels = hotelRepository.searchHotels(HotelStatus.ACTIVE, city);
         return hotels.stream()
                 .map(hotel -> modelMapper.map(hotel, HotelResponseDto.class))
@@ -116,10 +114,8 @@ public class HotelServiceImpl implements HotelService {
     @Override
     public HotelResponseDto getMyHotel(Long hotelId) {
         log.info("Fetching hotel for manager/receptionist: {}", hotelId);
-
         Hotel hotel = hotelRepository.findById(hotelId)
                 .orElseThrow(() -> new ResourceNotFoundException("Hotel", "id", hotelId));
-
         return modelMapper.map(hotel, HotelResponseDto.class);
     }
 
@@ -127,37 +123,27 @@ public class HotelServiceImpl implements HotelService {
     @Transactional
     public void deleteHotel(Long hotelId, Long userId, String role) {
         log.info("Deleting hotel: {} by user: {} with role: {}", hotelId, userId, role);
-
         // Only ADMIN can delete hotels
         if (!UserRole.ADMIN.name().equals(role)) {   // --TODO change ,edit userRoles to "Admin".equals(role)) later
             throw new ForbiddenException("Only administrators can delete hotels");
         }
-
         Hotel hotel = hotelRepository.findById(hotelId)
                 .orElseThrow(() -> new ResourceNotFoundException("Hotel", "id", hotelId));
-
-        // Soft delete - change status to INACTIVE
         hotel.setStatus(HotelStatus.INACTIVE);
         hotelRepository.save(hotel);
-
         log.info("Hotel soft deleted successfully: {}", hotelId);
     }
-
     @Override
     @Transactional
     public void updateHotelRoomCounts(Long hotelId) {
         log.info("Updating room counts for hotel: {}", hotelId);
-
         Hotel hotel = hotelRepository.findById(hotelId)
                 .orElseThrow(() -> new ResourceNotFoundException("Hotel", "id", hotelId));
-
         long totalRooms = roomRepository.countByHotelId(hotelId);
         long availableRooms = roomRepository.countByHotelIdAndStatus(hotelId, RoomStatus.AVAILABLE);
-
         hotel.setTotalRooms((int) totalRooms);
         hotel.setAvailableRooms((int) availableRooms);
         hotelRepository.save(hotel);
-
         log.info("Room counts updated - Total: {}, Available: {}", totalRooms, availableRooms);
     }
 }

@@ -31,14 +31,11 @@ public class RoomController {
             @RequestHeader("X-User-Id") Long userId,
             @RequestHeader("X-User-Role") String role,
             @RequestHeader(value = "X-Hotel-Id", required = false) Long userHotelId) {
-
         log.info("Create room request for hotel: {} from user: {} with role: {}",
                 requestDto.getHotelId(), userId, role);
-
         RoomResponseDto room = roomService.createRoom(requestDto, userId, role, userHotelId);
         ApiResponse<RoomResponseDto> response = ApiResponse.success(
                 "Room created successfully", room);
-
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
 
@@ -50,14 +47,11 @@ public class RoomController {
             @RequestHeader("X-User-Id") Long userId,
             @RequestHeader("X-User-Role") String role,
             @RequestHeader(value = "X-Hotel-Id", required = false) Long userHotelId) {
-
         log.info("Update room request for room: {} from user: {} with role: {}",
                 id, userId, role);
-
         RoomResponseDto room = roomService.updateRoom(id, requestDto, userId, role, userHotelId);
         ApiResponse<RoomResponseDto> response = ApiResponse.success(
                 "Room updated successfully", room);
-
         return ResponseEntity.ok(response);
     }
 
@@ -69,10 +63,8 @@ public class RoomController {
             @RequestHeader("X-User-Id") Long userId,
             @RequestHeader("X-User-Role") String role,
             @RequestHeader(value = "X-Hotel-Id", required = false) Long userHotelId) {
-
         log.info("Update room status request for room: {} to status: {} from user: {}",
                 id, statusDto.getStatus(), userId);
-
         RoomResponseDto room = roomService.updateRoomStatus(id, statusDto, userId, role, userHotelId);
         ApiResponse<RoomResponseDto> response = ApiResponse.success(
                 "Room status updated successfully", room);
@@ -90,7 +82,6 @@ public class RoomController {
         RoomResponseDto room = roomService.getRoomById(id);
         ApiResponse<RoomResponseDto> response = ApiResponse.success(
                 "Room retrieved successfully", room);
-
         return ResponseEntity.ok(response);
     }
      // Get all rooms for a hotel (all authenticated users)
@@ -98,26 +89,21 @@ public class RoomController {
     public ResponseEntity<ApiResponse<List<RoomResponseDto>>> getRoomsByHotelId(
             @PathVariable Long hotelId,
             @RequestHeader("X-User-Id") Long userId) {
-
         log.info("Get rooms request for hotel: {} from user: {}", hotelId, userId);
-
         List<RoomResponseDto> rooms = roomService.getRoomsByHotelId(hotelId);
         ApiResponse<List<RoomResponseDto>> response = ApiResponse.success(
                 "Rooms retrieved successfully", rooms);
 
         return ResponseEntity.ok(response);
     }
-    @GetMapping("/hotel/{hotelId}")
+    @GetMapping("/hotel/{hotelId}/available")
     public ResponseEntity<ApiResponse<List<RoomResponseDto>>> getAvailableRoomsByHotelId(
             @PathVariable Long hotelId,
             @RequestHeader("X-User-Id") Long userId) {
-
         log.info("Get available rooms request for hotel: {} from user: {}", hotelId, userId);
-
         List<RoomResponseDto> rooms = roomService.getAvailableRoomsByHotelId(hotelId);
         ApiResponse<List<RoomResponseDto>> response = ApiResponse.success(
                 "Available rooms retrieved successfully", rooms);
-
         return ResponseEntity.ok(response);
     }
 
@@ -129,26 +115,22 @@ public class RoomController {
             @RequestParam(required = false) BigDecimal minPrice,
             @RequestParam(required = false) BigDecimal maxPrice,
             @RequestHeader("X-User-Id") Long userId) {
-
         log.info("Search rooms request for hotel: {} from user: {} with filters", hotelId, userId);
-
         List<RoomResponseDto> rooms = roomService.searchRooms(
                 hotelId, status, roomType, minPrice, maxPrice);
         ApiResponse<List<RoomResponseDto>> response = ApiResponse.success(
                 "Room search completed successfully", rooms);
-
         return ResponseEntity.ok(response);
     }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<ApiResponse<Void>> deleteRoom(
             @PathVariable Long id,
             @RequestHeader("X-User-Id") Long userId,
             @RequestHeader("X-User-Role") String role,
             @RequestHeader(value = "X-Hotel-Id", required = false) Long userHotelId) {
-
         log.info("Delete room request for room: {} from user: {} with role: {}",
                 id, userId, role);
-
         roomService.deleteRoom(id, userId, role, userHotelId);
         ApiResponse<Void> response = ApiResponse.success(
                 "Room deleted successfully", null);
