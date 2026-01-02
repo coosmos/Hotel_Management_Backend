@@ -173,7 +173,6 @@ public class BookingServiceImpl implements BookingService {
     public BookingResponse cancelBooking(Long bookingId, String reason) {
         Booking booking = findBookingById(bookingId);
         UserContext context = authorizationUtil.getUserContext();
-
         // Authorization: Guest can cancel own bookings, Staff can cancel hotel bookings
         if (context.isGuest() && !booking.getUserId().equals(context.getUserId())) {
             throw new UnauthorizedException("You can only cancel your own bookings");
@@ -203,9 +202,9 @@ public class BookingServiceImpl implements BookingService {
     public BookingResponse checkInGuest(Long bookingId, CheckInRequest request) {
         Booking booking = findBookingById(bookingId);
         UserContext context = authorizationUtil.getUserContext();
-//        if (!context.canManageBookings()) {
-//            throw new UnauthorizedException("Only staff can check in guests");
-//        }
+        if (!context.canManageBookings()) {
+            throw new UnauthorizedException("Only staff can check in guests");
+        }
         // Verify hotel access
         authorizationUtil.verifyHotelAccess(booking.getHotelId());
         // Validate booking status
@@ -236,10 +235,10 @@ public class BookingServiceImpl implements BookingService {
     public BookingResponse checkOutGuest(Long bookingId, CheckOutRequest request) {
         Booking booking = findBookingById(bookingId);
         UserContext context = authorizationUtil.getUserContext();
-//        // Only staff can check out guests
-//        if (!context.canManageBookings()) {
-//            throw new UnauthorizedException("Only staff can check out guests");
-//        }
+        // Only staff can check out guests
+        if (!context.canManageBookings()) {
+            throw new UnauthorizedException("Only staff can check out guests");
+        }
         // Verify hotel access
         authorizationUtil.verifyHotelAccess(booking.getHotelId());
         // Validate booking status
@@ -247,25 +246,20 @@ public class BookingServiceImpl implements BookingService {
             throw new BookingException(
                     "Cannot check out. Current status: " + booking.getStatus().getDisplayName());
         }
-
         // Update booking
         booking.setStatus(BookingStatus.CHECKED_OUT);
         booking.setCheckedOutAt(LocalDate.now());
         booking.setUpdatedBy(context.getUsername());
-
         Booking updatedBooking = bookingRepository.save(booking);
         log.info("Guest checked out for booking {}", bookingId);
-
         // Update room status to CLEANING via hotel-service
         try {
             hotelServiceClient.updateRoomStatus(booking.getRoomId(), "CLEANING");
         } catch (Exception e) {
             log.error("Failed to update room status: {}", e.getMessage());
         }
-
         // Publish check-out event
         publishGuestCheckedOutEvent(updatedBooking, request);
-
         RoomDto room = hotelServiceClient.getRoomById(booking.getRoomId());
         return mapToResponse(updatedBooking, room);
     }
@@ -274,7 +268,6 @@ public class BookingServiceImpl implements BookingService {
     @Transactional(readOnly = true)
     public List<BookingResponse> getTodayCheckIns(Long hotelId) {
         authorizationUtil.verifyHotelAccess(hotelId);
-
         List<Booking> bookings = bookingRepository.findUpcomingCheckIns(hotelId, LocalDate.now());
         return bookings.stream()
                 .map(this::mapToResponseWithRoom)
@@ -291,9 +284,7 @@ public class BookingServiceImpl implements BookingService {
                 .map(this::mapToResponseWithRoom)
                 .collect(Collectors.toList());
     }
-
     // Helper methods
-
     private Booking findBookingById(Long bookingId) {
         return bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new ResourceNotFoundException("Booking", "id", bookingId));
@@ -301,11 +292,9 @@ public class BookingServiceImpl implements BookingService {
 
     private void validateDates(LocalDate checkInDate, LocalDate checkOutDate) {
         LocalDate today = LocalDate.now();
-
         if (checkInDate.isBefore(today)) {
             throw new BookingException("Check-in date cannot be in the past");
         }
-
         if (checkOutDate.isBefore(checkInDate) || checkOutDate.isEqual(checkInDate)) {
             throw new BookingException("Check-out date must be after check-in date");
         }

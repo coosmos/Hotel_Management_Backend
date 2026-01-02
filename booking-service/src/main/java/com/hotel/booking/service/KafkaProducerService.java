@@ -48,7 +48,6 @@ public class KafkaProducerService {
 
             CompletableFuture<SendResult<String, Object>> future =
                     kafkaTemplate.send(guestCheckedInTopic, event.getBookingId().toString(), event);
-
             future.whenComplete((result, ex) -> {
                 if (ex != null) {
                     log.error("Failed to publish guest-checked-in event: {}", ex.getMessage());
@@ -64,10 +63,8 @@ public class KafkaProducerService {
     public void publishGuestCheckedOut(GuestCheckedOutEvent event) {
         try {
             log.info("Publishing guest-checked-out event for booking ID: {}", event.getBookingId());
-
             CompletableFuture<SendResult<String, Object>> future =
                     kafkaTemplate.send(guestCheckedOutTopic, event.getBookingId().toString(), event);
-
             future.whenComplete((result, ex) -> {
                 if (ex != null) {
                     log.error("Failed to publish guest-checked-out event: {}", ex.getMessage());

@@ -31,4 +31,5 @@ public class UserContext {
     public boolean belongsToHotel(Long hotelId) {
         return this.hotelId != null && this.hotelId.equals(hotelId);
     }
+    public boolean canManageBookings() {return isAdmin() || isStaff();}
 }
