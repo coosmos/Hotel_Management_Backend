@@ -24,20 +24,20 @@ public class BookingController {
 
     //check room availaaible for a hotel
     @GetMapping("/availability")
-    public ResponseEntity<ApiResponse<AvailabilityResponse>> checkAvailability(@RequestParam Long hotelId,
+    public ResponseEntity<AvailabilityResponse> checkAvailability(@RequestParam Long hotelId,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkInDate,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkOutDate) {
        System.out.println("Checking availability for hotel");
         AvailabilityResponse response = bookingService.checkAvailability(hotelId, checkInDate, checkOutDate);
-        return ResponseEntity.ok(ApiResponse.success(response, "Availability checked successfully"));
+        return ResponseEntity.ok(response);
     }
     //create a new booking
     @PostMapping
-    public ResponseEntity<ApiResponse<BookingResponse>> createBooking(
+    public ResponseEntity<String> createBooking(
             @Valid @RequestBody BookingCreateRequest request) {
         BookingResponse response = bookingService.createBooking(request);
         return ResponseEntity.status(HttpStatus.CREATED)
-                .body(ApiResponse.success(response, "Booking created successfully"));
+                .body("booking created successfully");
     }
 
 

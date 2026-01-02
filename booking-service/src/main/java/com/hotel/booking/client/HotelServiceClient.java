@@ -11,15 +11,15 @@ import java.util.List;
         configuration = com.hotel.booking.config.FeignConfig.class
 )
 public interface HotelServiceClient {
-    @GetMapping("/api/rooms/hotel/{hotelId}")
+    @GetMapping("/api/hotels/rooms/hotel/{hotelId}")
     List<RoomDto> getRoomsByHotelId(@PathVariable("hotelId") Long hotelId);
-    @GetMapping("/api/rooms/{roomId}")
+    @GetMapping("/api/hotels/rooms/{roomId}")
     RoomDto getRoomById(@PathVariable("roomId") Long roomId);
-    @PatchMapping("/api/rooms/{roomId}/status")
+    @PatchMapping("/api/hotels/rooms/{roomId}/status")
     RoomDto updateRoomStatus(
             @PathVariable("roomId") Long roomId,
             @RequestParam("status") String status
     );
-    @GetMapping("/api/rooms/hotel/{hotelId}/available")
+    @GetMapping("/api/hotels/rooms/hotel/{hotelId}/available")
     List<RoomDto> getAvailableRooms(@PathVariable("hotelId") Long hotelId);
 }
