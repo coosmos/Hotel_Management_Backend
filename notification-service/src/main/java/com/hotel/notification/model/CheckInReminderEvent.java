@@ -3,22 +3,20 @@ package com.hotel.notification.model;
 import lombok.Data;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 
 @Data
-public class BookingCreatedEvent {
+public class CheckInReminderEvent {
 
     private Long bookingId;
     private Long userId;
-    private Long hotelId;
-    private Long roomId;
     private String guestName;
     private String guestEmail;
     private String guestPhone;
+    private Long hotelId;
+    private String hotelName;
+    private Long roomId;
+    private String roomNumber;
     private LocalDate checkInDate;
     private LocalDate checkOutDate;
-    private Double totalAmount;
-    private Integer numberOfGuests;
     private String specialRequests;
-    private LocalDateTime createdAt;
 }
