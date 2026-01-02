@@ -1,5 +1,6 @@
 package com.hotel.booking.client;
 
+import com.hotel.booking.config.FeignConfig;
 import com.hotel.booking.dto.external.RoomDto;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
@@ -8,7 +9,7 @@ import java.util.List;
 
 @FeignClient(
         name = "hotel-service",
-        configuration = com.hotel.booking.config.FeignConfig.class
+        configuration = FeignConfig.class
 )
 public interface HotelServiceClient {
     @GetMapping("/api/hotels/rooms/hotel/{hotelId}")

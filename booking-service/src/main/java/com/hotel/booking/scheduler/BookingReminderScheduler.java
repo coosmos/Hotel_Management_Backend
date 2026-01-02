@@ -26,7 +26,7 @@ public class BookingReminderScheduler {
     private final KafkaProducerService kafkaProducerService;
 
     //sends check in reminders -24 hours before checkin
-    @Scheduled(cron = "0 * * * * *") // for testing , in production it will be sent 0 0 9 * * *
+    @Scheduled(cron = "0 0 9 * * *") // for testing , in production it will be sent 0 0 9 * * *
     public void sendCheckInReminders() {
         LocalDate tomorrow = LocalDate.now().plusDays(1);
         // Find all confirmed bookings with check-in tomorrow

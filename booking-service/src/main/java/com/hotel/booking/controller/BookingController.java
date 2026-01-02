@@ -70,7 +70,7 @@ public class BookingController {
         return ResponseEntity.ok( "Booking cancelled successfully");
     }
     //check in guest  -- Manager , receptionist ,  admin
-   @PostMapping("/{id}/check-in")
+   @PatchMapping("/{id}/check-in")
     public ResponseEntity<?> checkInGuest(
             @PathVariable Long id,
             @Valid @RequestBody(required = false) CheckInRequest request) {
@@ -79,7 +79,7 @@ public class BookingController {
         return ResponseEntity.ok( "Guest checked in successfully");
     }
     // check-out guest -- Manager , receptionist
-    @PostMapping("/{id}/check-out")
+    @PatchMapping("/{id}/check-out")
     public ResponseEntity<?> checkOutGuest(
             @PathVariable Long id,
             @Valid @RequestBody(required = false) CheckOutRequest request) {
