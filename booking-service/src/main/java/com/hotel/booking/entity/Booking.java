@@ -33,8 +33,8 @@ public class Booking extends BaseEntity {
     private LocalDate checkInDate;
     @Column(name = "check_out_date", nullable = false)
     private LocalDate checkOutDate;
-    @Column(name = "total_amount", nullable = false, precision = 10, scale = 2)
-    private BigDecimal totalAmount;
+    @Column(name = "total_amount", nullable = false)
+    private float totalAmount;
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
     private BookingStatus status;

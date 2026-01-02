@@ -25,7 +25,6 @@ public class RoomResponseDto {
     private Integer roomSize;
     private String amenities;
     private String description;
-    private String imageUrl;
     private RoomStatus status;
     private Boolean isActive;
     private LocalDateTime statusChangedAt;

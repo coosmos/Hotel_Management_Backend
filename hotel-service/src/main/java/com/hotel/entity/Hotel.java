@@ -57,7 +57,6 @@ public class Hotel {
 //    @OneToMany(mappedBy = "hotel", cascade = CascadeType.ALL, orphanRemoval = true)
     @OneToMany(mappedBy = "hotel")
     private List<Room> rooms = new ArrayList<>();
-
     // Total rooms count
     @Column(name = "total_rooms")
     private Integer totalRooms = 0;

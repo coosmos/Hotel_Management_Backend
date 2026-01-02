@@ -23,7 +23,7 @@ public class BookingResponse {
     private String roomType;
     private LocalDate checkInDate;
     private LocalDate checkOutDate;
-    private BigDecimal totalAmount;
+    private Float totalAmount;
     private BookingStatus status;
     private String guestName;
     private String guestEmail;

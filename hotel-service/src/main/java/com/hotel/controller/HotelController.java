@@ -63,8 +63,7 @@ public class HotelController {
 
         return ResponseEntity.ok(response);
     }
-
-   /** get all hotels--for admin */
+        //get all hotels for admin
     @GetMapping
     public ResponseEntity<ApiResponse<List<HotelResponseDto>>> getAllHotels(
             @RequestHeader("X-User-Role") String role) {

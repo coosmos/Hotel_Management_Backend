@@ -23,7 +23,6 @@ public class HotelResponseDto {
     private String email;
     private Integer starRating;
     private String amenities;
-    private String imageUrl;
     private HotelStatus status;
     private Integer totalRooms;
     private Integer availableRooms;

@@ -29,24 +29,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final String authHeader = request.getHeader("Authorization");
         final String jwt;
         final String username;
-
         // check if authorization header is present and starts with Bearer
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
-
         // extract jwt token
         jwt = authHeader.substring(7);
-
         try {
             // extract username from token
             username = jwtUtil.extractUsername(jwt);
-
             // authenticate if username is present and no authentication is set
             if (username != null && SecurityContextHolder.getContext().getAuthentication() == null) {
                 UserDetails userDetails = userDetailsService.loadUserByUsername(username);
-
                 // validate token
                 if (jwtUtil.validateToken(jwt, userDetails.getUsername())) {
                     UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
@@ -61,7 +56,6 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         } catch (Exception e) {
             logger.error("cannot set user authentication: {}", e);
         }
-
         filterChain.doFilter(request, response);
     }
 }
