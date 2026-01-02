@@ -1,17 +1,18 @@
 package com.hotel.notification.entity;
 
 import jakarta.persistence.*;
-import lombok.*;
-
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "notifications")
-@Getter
-@Setter
-@Builder
+@Data
 @NoArgsConstructor
 @AllArgsConstructor
+@Builder
 public class Notification {
 
     @Id
@@ -21,17 +22,22 @@ public class Notification {
     private Long bookingId;
     @Column(name = "recipient_email", nullable = false)
     private String recipientEmail;
-    @Column(name = "notification_type", nullable = false)
+    @Column(name = "notification_type", nullable = false, length = 50)
     private String notificationType;
-    @Column(nullable = false)
+    @Column(name = "subject", nullable = false, length = 500)
     private String subject;
-    @Lob
-    @Column(nullable = false)
+    @Column(name = "content", nullable = false, columnDefinition = "TEXT")
     private String content;
-    @Column(nullable = false)
+    @Column(name = "status", nullable = false, length = 20)
     private String status;
     @Column(name = "sent_at")
     private LocalDateTime sentAt;
-    @Column(name = "error_message")
+    @Column(name = "error_message", columnDefinition = "TEXT")
     private String errorMessage;
+    @Column(name = "created_at", updatable = false)
+    private LocalDateTime createdAt;
+    @PrePersist
+    protected void onCreate() {
+        createdAt = LocalDateTime.now();
+    }
 }

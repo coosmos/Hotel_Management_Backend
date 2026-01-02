@@ -18,5 +18,4 @@ public class CheckInReminderEvent {
     private String roomNumber;
     private LocalDate checkInDate;
     private LocalDate checkOutDate;
-    private String specialRequests;
 }

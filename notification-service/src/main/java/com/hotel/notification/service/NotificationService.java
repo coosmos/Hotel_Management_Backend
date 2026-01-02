@@ -5,48 +5,48 @@ import com.hotel.notification.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.thymeleaf.context.Context;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Map;
 
-@Slf4j
 @Service
 @RequiredArgsConstructor
+@Slf4j
 public class NotificationService {
 
     private final NotificationRepository notificationRepository;
     private final EmailService emailService;
 
-    public void sendAndSave(
-            Long bookingId,
-            String recipientEmail,
-            String notificationType,
-            String subject,
-            String template,
-            Context context
-    ) {
+    @Transactional
+    public void sendNotification(Long bookingId, String recipientEmail, String notificationType,
+                                 String subject, String templateName, Map<String, Object> variables) {
         Notification notification = Notification.builder()
                 .bookingId(bookingId)
                 .recipientEmail(recipientEmail)
                 .notificationType(notificationType)
                 .subject(subject)
+                .content("Email content: " + templateName)
                 .status("PENDING")
                 .build();
 
-        notificationRepository.save(notification);
-        boolean sent = emailService.sendEmail(
-                recipientEmail,
-                subject,
-                template,
-                context
-        );
-        if (sent) {
+        try {
+            emailService.sendEmail(recipientEmail, subject, templateName, variables);
+
             notification.setStatus("SENT");
             notification.setSentAt(LocalDateTime.now());
-        } else {
+
+            log.info("Notification sent successfully - Type: {}, BookingId: {}, Email: {}",
+                    notificationType, bookingId, recipientEmail);
+
+        } catch (Exception e) {
             notification.setStatus("FAILED");
-            notification.setErrorMessage("Email sending failed");
+            notification.setErrorMessage(e.getMessage());
+
+            log.error("Failed to send notification - Type: {}, BookingId: {}, Email: {}, Error: {}",
+                    notificationType, bookingId, recipientEmail, e.getMessage());
         }
+
         notificationRepository.save(notification);
     }
 }

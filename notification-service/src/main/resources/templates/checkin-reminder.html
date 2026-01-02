@@ -1,10 +1,22 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Check-in Reminder</title>
 </head>
 <body>
+<h2>Check-in Reminder</h2>
 
+<p>Hi <b th:text="${event.guestName}">Guest</b>,</p>
+
+<p>This is a reminder for your upcoming stay.</p>
+
+<ul>
+    <li>Hotel: <span th:text="${event.hotelName}"></span></li>
+    <li>Room: <span th:text="${event.roomNumber}"></span></li>
+    <li>Check-in Date: <span th:text="${event.checkInDate}"></span></li>
+</ul>
+
+<p>See you soon.</p>
 </body>
 </html>

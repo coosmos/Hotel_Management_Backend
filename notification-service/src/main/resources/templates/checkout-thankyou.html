@@ -1,10 +1,22 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Thank You</title>
 </head>
 <body>
+<h2>Thank You for Staying With Us</h2>
 
+<p>Hi <b th:text="${event.guestName}">Guest</b>,</p>
+
+<p>We hope you had a great stay.</p>
+
+<ul>
+    <li>Booking ID: <span th:text="${event.bookingId}"></span></li>
+    <li>Checked-out At: <span th:text="${event.checkedOutAt}"></span></li>
+    <li>Rating: <span th:text="${event.rating}"></span></li>
+</ul>
+
+<p>We’d love to see you again.</p>
 </body>
 </html>

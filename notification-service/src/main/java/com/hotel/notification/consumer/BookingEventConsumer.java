@@ -1,98 +1,124 @@
 package com.hotel.notification.consumer;
 
-import com.hotel.notification.model.*;
+import com.hotel.notification.model.BookingCreatedEvent;
+import com.hotel.notification.model.CheckInReminderEvent;
+import com.hotel.notification.model.GuestCheckedInEvent;
+import com.hotel.notification.model.GuestCheckedOutEvent;
 import com.hotel.notification.service.NotificationService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Component;
-import org.thymeleaf.context.Context;
 
-@Slf4j
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
+
 @Component
 @RequiredArgsConstructor
+@Slf4j
 public class BookingEventConsumer {
 
     private final NotificationService notificationService;
+    private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter.ofPattern("MMMM dd, yyyy");
 
-    @Value("${kafka.topics.booking-created}")
-    private String bookingCreatedTopic;
+    @KafkaListener(topics = "${kafka.topics.booking-created}", containerFactory = "bookingCreatedKafkaListenerContainerFactory")
+    public void consumeBookingCreated(BookingCreatedEvent event) {
 
-    @Value("${kafka.topics.checkin-reminder}")
-    private String checkinReminderTopic;
+        log.info("Received booking-created event for BookingId: {}", event.getBookingId());
 
-    @Value("${kafka.topics.guest-checked-in}")
-    private String guestCheckedInTopic;
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("guestName", event.getGuestName());
+        variables.put("bookingId", event.getBookingId());
+        variables.put("checkInDate", event.getCheckInDate().format(DATE_FORMATTER));
+        variables.put("checkOutDate", event.getCheckOutDate().format(DATE_FORMATTER));
+        variables.put("numberOfGuests", event.getNumberOfGuests());
+        variables.put("totalAmount", String.format("%.2f", event.getTotalAmount()));
+        variables.put("specialRequests", event.getSpecialRequests() != null ? event.getSpecialRequests() : "None");
 
-    @Value("${kafka.topics.guest-checked-out}")
-    private String guestCheckedOutTopic;
+        String subject = "Booking Confirmation - Your reservation is confirmed!";
 
-    @KafkaListener(topics = "${kafka.topics.booking-created}", groupId = "notification-group")
-    public void handleBookingCreated(BookingCreatedEvent event) {
-        log.info("Received booking-created event {}", event.getBookingId());
-
-        Context context = new Context();
-        context.setVariable("event", event);
-
-        notificationService.sendAndSave(
+        notificationService.sendNotification(
                 event.getBookingId(),
                 event.getGuestEmail(),
-                "BOOKING_CREATED",
-                "Booking Confirmation",
+                "BOOKING_CONFIRMATION",
+                subject,
                 "booking-confirmation",
-                context
+                variables
         );
     }
 
-    @KafkaListener(topics = "${kafka.topics.checkin-reminder}", groupId = "notification-group")
-    public void handleCheckInReminder(CheckInReminderEvent event) {
-        log.info("Received checkin-reminder event {}", event.getBookingId());
+    @KafkaListener(topics = "${kafka.topics.checkin-reminder}", containerFactory = "checkInReminderKafkaListenerContainerFactory")
+    public void consumeCheckInReminder(CheckInReminderEvent event) {
 
-        Context context = new Context();
-        context.setVariable("event", event);
+        log.info("Received checkin-reminder event for BookingId: {}", event.getBookingId());
 
-        notificationService.sendAndSave(
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("guestName", event.getGuestName());
+        variables.put("bookingId", event.getBookingId());
+        variables.put("hotelName", event.getHotelName());
+        variables.put("roomNumber", event.getRoomNumber());
+        variables.put("checkInDate", event.getCheckInDate().format(DATE_FORMATTER));
+        variables.put("checkOutDate", event.getCheckOutDate().format(DATE_FORMATTER));
+        String subject = "Check-in Reminder - Tomorrow is your check-in day!";
+
+        notificationService.sendNotification(
                 event.getBookingId(),
                 event.getGuestEmail(),
                 "CHECKIN_REMINDER",
-                "Check-in Reminder",
+                subject,
                 "checkin-reminder",
-                context
+                variables
         );
     }
 
-    @KafkaListener(topics = "${kafka.topics.guest-checked-in}", groupId = "notification-group")
-    public void handleGuestCheckedIn(GuestCheckedInEvent event) {
-        log.info("Received guest-checked-in event {}", event.getBookingId());
+    @KafkaListener(topics = "${kafka.topics.guest-checked-in}", containerFactory = "guestCheckedInKafkaListenerContainerFactory")
+    public void consumeGuestCheckedIn(GuestCheckedInEvent event) {
 
-        Context context = new Context();
-        context.setVariable("event", event);
+        log.info("Received guest-checked-in event for BookingId: {}", event.getBookingId());
 
-        notificationService.sendAndSave(
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("guestName", event.getGuestName());
+        variables.put("bookingId", event.getBookingId());
+        variables.put("checkInDate", event.getCheckInDate().format(DATE_FORMATTER));
+        variables.put("checkOutDate", event.getCheckOutDate().format(DATE_FORMATTER));
+        variables.put("checkedInTime", event.getCheckedInAt().format(DateTimeFormatter.ofPattern("hh:mm a")));
+
+        String subject = "Welcome! You've successfully checked in";
+
+        notificationService.sendNotification(
                 event.getBookingId(),
                 event.getGuestEmail(),
                 "CHECKIN_SUCCESS",
-                "Check-in Successful",
+                subject,
                 "checkin-success",
-                context
+                variables
         );
     }
 
-    @KafkaListener(topics = "${kafka.topics.guest-checked-out}", groupId = "notification-group")
-    public void handleGuestCheckedOut(GuestCheckedOutEvent event) {
-        log.info("Received guest-checked-out event {}", event.getBookingId());
+    @KafkaListener(topics = "${kafka.topics.guest-checked-out}", containerFactory = "guestCheckedOutKafkaListenerContainerFactory")
+    public void consumeGuestCheckedOut(GuestCheckedOutEvent event) {
 
-        Context context = new Context();
-        context.setVariable("event", event);
+        log.info("Received guest-checked-out event for BookingId: {}", event.getBookingId());
 
-        notificationService.sendAndSave(
+        Map<String, Object> variables = new HashMap<>();
+        variables.put("guestName", event.getGuestName());
+        variables.put("bookingId", event.getBookingId());
+        variables.put("checkInDate", event.getCheckInDate().format(DATE_FORMATTER));
+        variables.put("checkOutDate", event.getCheckOutDate().format(DATE_FORMATTER));
+        variables.put("checkedOutTime", event.getCheckedOutAt().format(DateTimeFormatter.ofPattern("hh:mm a")));
+        variables.put("rating", event.getRating() != null ? event.getRating() : "Not provided");
+        variables.put("feedback", event.getFeedback() != null ? event.getFeedback() : "No feedback provided");
+
+        String subject = "Thank you for staying with us!";
+
+        notificationService.sendNotification(
                 event.getBookingId(),
                 event.getGuestEmail(),
                 "CHECKOUT_THANKYOU",
-                "Thank You for Staying With Us",
+                subject,
                 "checkout-thankyou",
-                context
+                variables
         );
     }
 }

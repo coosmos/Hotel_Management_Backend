@@ -1,10 +1,22 @@
 <!DOCTYPE html>
-<html lang="en">
+<html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Title</title>
+    <title>Check-in Successful</title>
 </head>
 <body>
+<h2>Check-in Successful</h2>
 
+<p>Hi <b th:text="${event.guestName}">Guest</b>,</p>
+
+<p>You have successfully checked in.</p>
+
+<ul>
+    <li>Booking ID: <span th:text="${event.bookingId}"></span></li>
+    <li>Room Status: <span th:text="${event.roomStatus}"></span></li>
+    <li>Checked-in At: <span th:text="${event.checkedInAt}"></span></li>
+</ul>
+
+<p>Enjoy your stay.</p>
 </body>
 </html>
