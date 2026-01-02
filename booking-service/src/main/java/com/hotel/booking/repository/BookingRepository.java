@@ -104,4 +104,15 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
         AND b.status IN ('CONFIRMED', 'CHECKED_IN')
         """)
     Long countActiveBookings(@Param("hotelId") Long hotelId);
+    List<Booking> findByCheckInDateAndStatus(LocalDate checkInDate, BookingStatus status);
+
+    //find bookings by checkout date and status
+    List<Booking> findByCheckOutDateAndStatus(LocalDate checkOutDate, BookingStatus status);
+    //find overdue confirmed bookings
+    @Query("""
+        SELECT b FROM Booking b
+        WHERE b.status = 'CONFIRMED'
+        AND b.checkInDate < :date
+        """)
+    List<Booking> findOverdueConfirmedBookings(@Param("date") LocalDate date);
 }

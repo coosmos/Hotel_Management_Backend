@@ -1,6 +1,7 @@
 package com.hotel.booking.service;
 
 import com.hotel.booking.event.BookingCreatedEvent;
+import com.hotel.booking.event.CheckInReminderEvent;
 import com.hotel.booking.event.GuestCheckedInEvent;
 import com.hotel.booking.event.GuestCheckedOutEvent;
 import lombok.RequiredArgsConstructor;
@@ -75,6 +76,29 @@ public class KafkaProducerService {
             });
         } catch (Exception e) {
             log.error("Error publishing guest-checked-out event: {}", e.getMessage(), e);
+        }
+    }
+    @Value("${kafka.topics.checkin-reminder}")
+    private String checkInReminderTopic;
+
+    //publish checkin reminder
+    public void publishCheckInReminder(CheckInReminderEvent event) {
+        try {
+            log.info("Publishing check-in reminder for booking ID: {}", event.getBookingId());
+
+            CompletableFuture<SendResult<String, Object>> future =
+                    kafkaTemplate.send(checkInReminderTopic, event.getBookingId().toString(), event);
+
+            future.whenComplete((result, ex) -> {
+                if (ex != null) {
+                    log.error("Failed to publish check-in reminder: {}", ex.getMessage());
+                } else {
+                    log.info("Successfully published check-in reminder to topic: {}",
+                            checkInReminderTopic);
+                }
+            });
+        } catch (Exception e) {
+            log.error("Error publishing check-in reminder: {}", e.getMessage(), e);
         }
     }
 }
