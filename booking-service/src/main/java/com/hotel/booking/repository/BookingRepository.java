@@ -3,10 +3,12 @@ package com.hotel.booking.repository;
 import com.hotel.booking.entity.Booking;
 import com.hotel.booking.enums.BookingStatus;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import jakarta.persistence.LockModeType;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -32,9 +34,6 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             @Param("checkOutDate") LocalDate checkOutDate
     );
 
-    /**
-     * Check if a specific room is booked for date range
-     */
     @Query("""
         SELECT COUNT(b) > 0 FROM Booking b
         WHERE b.roomId = :roomId
@@ -49,6 +48,32 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             @Param("checkOutDate") LocalDate checkOutDate
     );
 
+    /**
+     * Find conflicting bookings with PESSIMISTIC WRITE LOCK
+     * This prevents race conditions during booking creation
+     * How it works:
+     * 1. Locks all matching rows (or locks the query range if no matches)
+     * 2. Other transactions trying to query the same data will WAIT
+     * 3. Lock is released when transaction commits
+     *  roomId Room to check
+     *  checkInDate Check-in date
+     *  checkOutDate Check-out date
+     * @return List of conflicting bookings (empty if available)
+     */
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("""
+        SELECT b FROM Booking b
+        WHERE b.roomId = :roomId
+        AND b.status NOT IN ('CANCELLED', 'CHECKED_OUT')
+        AND (
+            (b.checkInDate <= :checkOutDate AND b.checkOutDate >= :checkInDate)
+        )
+        """)
+    List<Booking> findConflictingBookingsWithLock(
+            @Param("roomId") Long roomId,
+            @Param("checkInDate") LocalDate checkInDate,
+            @Param("checkOutDate") LocalDate checkOutDate
+    );
     @Query("""
         SELECT b FROM Booking b
         WHERE b.hotelId = :hotelId
@@ -60,7 +85,6 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             @Param("hotelId") Long hotelId,
             @Param("date") LocalDate date
     );
-    //to find upcoming checkout for a hotel
     @Query("""
         SELECT b FROM Booking b
         WHERE b.hotelId = :hotelId
@@ -72,8 +96,6 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             @Param("hotelId") Long hotelId,
             @Param("date") LocalDate date
     );
-
-    // find active bookings for a user
     @Query("""
         SELECT b FROM Booking b
         WHERE b.userId = :userId
@@ -81,7 +103,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
         ORDER BY b.checkInDate DESC
         """)
     List<Booking> findActiveBookingsByUserId(@Param("userId") Long userId);
-    //find bookings by date range
+
     @Query("""
         SELECT b FROM Booking b
         WHERE b.hotelId = :hotelId
@@ -97,7 +119,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             @Param("startDate") LocalDate startDate,
             @Param("endDate") LocalDate endDate
     );
-    //count active bookings for a hotel
+
     @Query("""
         SELECT COUNT(b) FROM Booking b
         WHERE b.hotelId = :hotelId
@@ -105,10 +127,8 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
         """)
     Long countActiveBookings(@Param("hotelId") Long hotelId);
     List<Booking> findByCheckInDateAndStatus(LocalDate checkInDate, BookingStatus status);
-
-    //find bookings by checkout date and status
     List<Booking> findByCheckOutDateAndStatus(LocalDate checkOutDate, BookingStatus status);
-    //find overdue confirmed bookings
+
     @Query("""
         SELECT b FROM Booking b
         WHERE b.status = 'CONFIRMED'

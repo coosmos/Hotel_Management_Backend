@@ -13,7 +13,6 @@ import com.hotel.booking.event.BookingCreatedEvent;
 import com.hotel.booking.event.GuestCheckedInEvent;
 import com.hotel.booking.event.GuestCheckedOutEvent;
 import com.hotel.booking.exception.BookingException;
-
 import com.hotel.booking.exception.ResourceNotFoundException;
 import com.hotel.booking.exception.UnauthorizedException;
 import com.hotel.booking.repository.BookingRepository;
@@ -23,9 +22,9 @@ import com.hotel.booking.security.UserContext;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -71,7 +70,7 @@ public class BookingServiceImpl implements BookingService {
     public BookingResponse createBooking(BookingCreateRequest request) {
         UserContext context = authorizationUtil.getUserContext();
         log.info("Creating booking for user {} in hotel {}", context.getUserId(), request.getHotelId());
-        // guest can create bookings
+        // Only guest can create bookings
         if (!context.isGuest() && !context.isAdmin()) {
             throw new UnauthorizedException("Only guests can create bookings");
         }
@@ -88,15 +87,23 @@ public class BookingServiceImpl implements BookingService {
         if (!room.getIsActive() || !"AVAILABLE".equalsIgnoreCase(room.getStatus())) {
             throw new BookingException("Room is not available for booking");
         }
-        // Check if room is already booked for the dates
-        boolean isBooked = bookingRepository.isRoomBooked(
-                request.getRoomId(), request.getCheckInDate(), request.getCheckOutDate());
-        if (isBooked) {
+        // This query locks matching rows in the database
+        // Other transactions trying to book the same room will wait here
+        log.debug("Acquiring lock and checking for conflicting bookings for room {}", request.getRoomId());
+        List<Booking> conflicts = bookingRepository.findConflictingBookingsWithLock(
+                request.getRoomId(),
+                request.getCheckInDate(),
+                request.getCheckOutDate()
+        );
+        if (!conflicts.isEmpty()) {
+            log.warn("Room {} is already booked for dates {} to {}",
+                    request.getRoomId(), request.getCheckInDate(), request.getCheckOutDate());
             throw new BookingException("Room is already booked for the selected dates");
         }
+        log.debug("No conflicts found, proceeding with booking creation");
         // Calculate total amount
         int numberOfNights = request.getNumberOfNights();
-        float totalAmount = room.getPricePerNight() *(numberOfNights);
+        float totalAmount = room.getPricePerNight() * numberOfNights;
         // Create booking entity
         Booking booking = Booking.builder()
                 .userId(context.getUserId())
@@ -112,19 +119,16 @@ public class BookingServiceImpl implements BookingService {
                 .numberOfGuests(request.getNumberOfGuests())
                 .build();
         booking.setCreatedBy(context.getUsername());
-        // Save booking
         Booking savedBooking = bookingRepository.save(booking);
         log.info("Booking created with ID: {}", savedBooking.getId());
-        // Publish Kafka event
         publishBookingCreatedEvent(savedBooking, room);
-        return mapToResponse(savedBooking, room);
+        return mapToResponse(savedBooking, room); //lock is released on transaction complete
     }
 
     @Override
     @Transactional(readOnly = true)
     public BookingResponse getBookingById(Long bookingId) {
         Booking booking = findBookingById(bookingId);
-        // Authorization check
         authorizationUtil.verifyBookingAccess(booking.getUserId(), booking.getHotelId());
         RoomDto room = hotelServiceClient.getRoomById(booking.getRoomId());
         return mapToResponse(booking, room);
@@ -146,7 +150,6 @@ public class BookingServiceImpl implements BookingService {
     @Override
     @Transactional(readOnly = true)
     public List<BookingResponse> getHotelBookings(Long hotelId) {
-        // Verify user has access to this hotel
         authorizationUtil.verifyHotelAccess(hotelId);
         List<Booking> bookings = bookingRepository.findByHotelIdOrderByCreatedAtDesc(hotelId);
         return bookings.stream()
@@ -158,7 +161,6 @@ public class BookingServiceImpl implements BookingService {
     @Transactional(readOnly = true)
     public List<BookingResponse> getAllBookings() {
         UserContext context = authorizationUtil.getUserContext();
-
         if (!context.isAdmin()) {
             throw new UnauthorizedException("Only admins can view all bookings");
         }
@@ -173,26 +175,23 @@ public class BookingServiceImpl implements BookingService {
     public BookingResponse cancelBooking(Long bookingId, String reason) {
         Booking booking = findBookingById(bookingId);
         UserContext context = authorizationUtil.getUserContext();
-        // Authorization: Guest can cancel own bookings, Staff can cancel hotel bookings
+
         if (context.isGuest() && !booking.getUserId().equals(context.getUserId())) {
             throw new UnauthorizedException("You can only cancel your own bookings");
         } else if (context.isStaff()) {
             authorizationUtil.verifyHotelAccess(booking.getHotelId());
         }
-        // Validate booking can be cancelled
+
         if (!booking.getStatus().isCancellable()) {
             throw new BookingException(
                     "Booking cannot be cancelled. Current status: " + booking.getStatus().getDisplayName());
         }
 
-        // Update booking
         booking.setStatus(BookingStatus.CANCELLED);
         booking.setCancelledAt(LocalDate.now());
         booking.setUpdatedBy(context.getUsername());
-
         Booking updatedBooking = bookingRepository.save(booking);
         log.info("Booking {} cancelled by user {}", bookingId, context.getUserId());
-
         RoomDto room = hotelServiceClient.getRoomById(booking.getRoomId());
         return mapToResponse(updatedBooking, room);
     }
@@ -205,60 +204,51 @@ public class BookingServiceImpl implements BookingService {
         if (!context.canManageBookings()) {
             throw new UnauthorizedException("Only staff can check in guests");
         }
-        // Verify hotel access
         authorizationUtil.verifyHotelAccess(booking.getHotelId());
-        // Validate booking status
+
         if (!booking.getStatus().canCheckIn()) {
             throw new BookingException(
                     "Cannot check in. Current status: " + booking.getStatus().getDisplayName());
         }
-        // Update booking
         booking.setStatus(BookingStatus.CHECKED_IN);
         booking.setCheckedInAt(LocalDate.now());
         booking.setUpdatedBy(context.getUsername());
+
         Booking updatedBooking = bookingRepository.save(booking);
         log.info("Guest checked in for booking {}", bookingId);
-        // Update room status to OCCUPIED via hotel-service
         try {
             hotelServiceClient.updateRoomStatus(booking.getRoomId(), "OCCUPIED");
         } catch (Exception e) {
             log.error("Failed to update room status: {}", e.getMessage());
         }
-        // Publish check-in event
         publishGuestCheckedInEvent(updatedBooking);
         RoomDto room = hotelServiceClient.getRoomById(booking.getRoomId());
         return mapToResponse(updatedBooking, room);
     }
-
     @Override
     @Transactional
     public BookingResponse checkOutGuest(Long bookingId, CheckOutRequest request) {
         Booking booking = findBookingById(bookingId);
         UserContext context = authorizationUtil.getUserContext();
-        // Only staff can check out guests
+
         if (!context.canManageBookings()) {
             throw new UnauthorizedException("Only staff can check out guests");
         }
-        // Verify hotel access
         authorizationUtil.verifyHotelAccess(booking.getHotelId());
-        // Validate booking status
+
         if (!booking.getStatus().canCheckOut()) {
-            throw new BookingException(
-                    "Cannot check out. Current status: " + booking.getStatus().getDisplayName());
+            throw new BookingException("Cannot check out. Current status: " + booking.getStatus().getDisplayName());
         }
-        // Update booking
         booking.setStatus(BookingStatus.CHECKED_OUT);
         booking.setCheckedOutAt(LocalDate.now());
         booking.setUpdatedBy(context.getUsername());
         Booking updatedBooking = bookingRepository.save(booking);
         log.info("Guest checked out for booking {}", bookingId);
-        // Update room status to CLEANING via hotel-service
         try {
             hotelServiceClient.updateRoomStatus(booking.getRoomId(), "CLEANING");
         } catch (Exception e) {
             log.error("Failed to update room status: {}", e.getMessage());
         }
-        // Publish check-out event
         publishGuestCheckedOutEvent(updatedBooking, request);
         RoomDto room = hotelServiceClient.getRoomById(booking.getRoomId());
         return mapToResponse(updatedBooking, room);
@@ -273,12 +263,10 @@ public class BookingServiceImpl implements BookingService {
                 .map(this::mapToResponseWithRoom)
                 .collect(Collectors.toList());
     }
-
     @Override
     @Transactional(readOnly = true)
     public List<BookingResponse> getTodayCheckOuts(Long hotelId) {
         authorizationUtil.verifyHotelAccess(hotelId);
-
         List<Booking> bookings = bookingRepository.findUpcomingCheckOuts(hotelId, LocalDate.now());
         return bookings.stream()
                 .map(this::mapToResponseWithRoom)
@@ -299,7 +287,6 @@ public class BookingServiceImpl implements BookingService {
             throw new BookingException("Check-out date must be after check-in date");
         }
     }
-
     private BookingResponse mapToResponse(Booking b, RoomDto room) {
         return BookingResponse.builder()
                 .id(b.getId())
@@ -321,7 +308,6 @@ public class BookingServiceImpl implements BookingService {
                 .updatedAt(b.getUpdatedAt())
                 .build();
     }
-
     private BookingResponse mapToResponseWithRoom(Booking booking) {
         try {
             return mapToResponse(booking,
@@ -330,8 +316,6 @@ public class BookingServiceImpl implements BookingService {
             return mapToResponse(booking, new RoomDto());
         }
     }
-
-
     private void publishBookingCreatedEvent(Booking booking, RoomDto room) {
         BookingCreatedEvent event = BookingCreatedEvent.builder()
                 .bookingId(booking.getId())
@@ -347,10 +331,8 @@ public class BookingServiceImpl implements BookingService {
                 .numberOfGuests(booking.getNumberOfGuests())
                 .createdAt(LocalDateTime.now())
                 .build();
-
         kafkaProducerService.publishBookingCreated(event);
     }
-
     private void publishGuestCheckedInEvent(Booking booking) {
         GuestCheckedInEvent event = GuestCheckedInEvent.builder()
                 .bookingId(booking.getId())
@@ -364,10 +346,8 @@ public class BookingServiceImpl implements BookingService {
                 .checkedInAt(LocalDateTime.now())
                 .roomStatus("OCCUPIED")
                 .build();
-
         kafkaProducerService.publishGuestCheckedIn(event);
     }
-
     private void publishGuestCheckedOutEvent(Booking booking, CheckOutRequest request) {
         GuestCheckedOutEvent event = GuestCheckedOutEvent.builder()
                 .bookingId(booking.getId())
@@ -383,8 +363,6 @@ public class BookingServiceImpl implements BookingService {
                 .rating(request.getRating())
                 .feedback(request.getFeedback())
                 .build();
-
         kafkaProducerService.publishGuestCheckedOut(event);
     }
 }
-

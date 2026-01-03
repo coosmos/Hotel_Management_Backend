@@ -8,8 +8,6 @@ import com.hotel.booking.dto.response.AvailabilityResponse;
 import com.hotel.booking.dto.response.BookingResponse;
 import com.hotel.booking.service.BookingService;
 import jakarta.validation.Valid;
-import lombok.RequiredArgsConstructor;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;

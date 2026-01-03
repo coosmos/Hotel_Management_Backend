@@ -1,0 +1,49 @@
+let token;
+try {
+    // console.log("requesting token ")
+    const response = await pm.execution.runRequest("40718754-36bb1fd0-80f7-43fb-9d04-c696725e19c1");
+    token=response.json().token;
+    console.log(token);
+    pm.sendRequest({
+    url: 'http://localhost:9090/api/hotels',
+    method: 'POST',
+    header: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
+    },
+    body: {
+        mode: 'raw',
+        raw: JSON.stringify({
+  "name": "Grand Plaza Hotel",
+  "description": "Luxury hotel in downtown",
+  "address": "123 Main St",
+  "city": "New York",
+  "state": "NY",
+  "country": "USA",
+  "pincode": "10001",
+  "contactNumber": "1234567890",
+  "email": "contact@grandplaza.com",
+  "starRating": 5,
+  "amenities": "WiFi,Pool,Gym,Spa,Restaurant",
+  "imageUrl": "https://example.com/image.jpg",
+  "status": "ACTIVE"
+})
+    }
+}, function (err, res) {
+    if (!err) {
+        var token = res.json().token;
+        pm.environment.set('jwt_token', token);
+    }
+});
+
+} catch (err) {
+    console.error("request failed",err);
+}
+
+
+=====================steps====================
+paste this in preresponse
+step1. change the url in line 4 to correct url you use for login , remove everything in double quotes and click on it scroll and choose right one
+step2. change the url in line 8 with the one you want to test , change the body as well -> save it
+step3. click on collection choose run , deselect all and choose the one containing the script run it
+
