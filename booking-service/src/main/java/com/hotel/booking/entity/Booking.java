@@ -1,11 +1,13 @@
 package com.hotel.booking.entity;
 
 import com.hotel.booking.enums.BookingStatus;
+import com.hotel.booking.enums.PaymentStatus;
 import jakarta.persistence.*;
 import lombok.*;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 import static java.time.temporal.ChronoUnit.DAYS;
 
@@ -29,12 +31,18 @@ public class Booking extends BaseEntity {
     private Long hotelId;
     @Column(name = "room_id", nullable = false)
     private Long roomId;
+    @Column(name="hotel_name")
+    private String hotelName;
     @Column(name = "check_in_date", nullable = false)
     private LocalDate checkInDate;
     @Column(name = "check_out_date", nullable = false)
     private LocalDate checkOutDate;
     @Column(name = "total_amount", nullable = false)
     private float totalAmount;
+    @Enumerated(EnumType.STRING)
+    private PaymentStatus paymentStatus;
+    private LocalDateTime paidAt;
+    private String paymentMethod;
     @Enumerated(EnumType.STRING)
     @Column(name = "status", nullable = false, length = 20)
     private BookingStatus status;
@@ -63,4 +71,5 @@ public class Booking extends BaseEntity {
     public boolean overlapsWithDates(LocalDate startDate, LocalDate endDate) {
         return !checkOutDate.isBefore(startDate) && !checkInDate.isAfter(endDate);
     }
+
 }

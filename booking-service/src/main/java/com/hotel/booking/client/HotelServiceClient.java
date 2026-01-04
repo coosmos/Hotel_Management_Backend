@@ -1,7 +1,9 @@
 package com.hotel.booking.client;
 
 import com.hotel.booking.config.FeignConfig;
+import com.hotel.booking.dto.external.HotelDto;
 import com.hotel.booking.dto.external.RoomDto;
+import com.hotel.booking.dto.response.ApiResponse;
 import org.springframework.cloud.openfeign.FeignClient;
 import org.springframework.web.bind.annotation.*;
 
@@ -23,4 +25,10 @@ public interface HotelServiceClient {
     );
     @GetMapping("/api/hotels/rooms/hotel/{hotelId}/available")
     List<RoomDto> getAvailableRooms(@PathVariable("hotelId") Long hotelId);
+    @GetMapping("/api/hotels/search")
+    ApiResponse<List<HotelDto>> searchHotelsWrapped(@RequestParam("city") String city);
+
+    @GetMapping("/api/hotels/{id}")
+    ApiResponse<HotelDto> getHotelByIdWrapped(@PathVariable("id") Long id);
+
 }

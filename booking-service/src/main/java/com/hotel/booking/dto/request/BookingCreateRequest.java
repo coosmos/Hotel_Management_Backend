@@ -15,8 +15,8 @@ import java.time.LocalDate;
 public class BookingCreateRequest {
     @NotNull(message = "Hotel ID is required")
     private Long hotelId;
-    @NotNull(message = "Room ID is required")
-    private Long roomId;
+    @NotNull(message = "Room Type is required")
+    private String roomType;
     @NotNull(message = "Check-in date is required")
     @Future(message = "Check-in date must be in the future")
     private LocalDate checkInDate;

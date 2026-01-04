@@ -35,7 +35,7 @@ public class LockTest {
     private BookingRepository bookingRepository;
 
     private static final Long hotel_id = 3L;
-    private static final Long room_id = 2L;
+    private static final String room_type = "SUITE";
     private static final LocalDate check_in = LocalDate.now().plusDays(3);
     private static final LocalDate check_out = LocalDate.now().plusDays(4);
 
@@ -61,7 +61,7 @@ public class LockTest {
 
         BookingCreateRequest request = BookingCreateRequest.builder()
                 .hotelId(hotel_id)
-                .roomId(room_id)
+                .roomType(room_type)
                 .checkInDate(check_in)
                 .checkOutDate(check_out)
                 .guestName("Test User")

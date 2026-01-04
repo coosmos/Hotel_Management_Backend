@@ -3,9 +3,7 @@ package com.hotel.booking.controller;
 import com.hotel.booking.dto.request.BookingCreateRequest;
 import com.hotel.booking.dto.request.CheckInRequest;
 import com.hotel.booking.dto.request.CheckOutRequest;
-import com.hotel.booking.dto.response.ApiResponse;
-import com.hotel.booking.dto.response.AvailabilityResponse;
-import com.hotel.booking.dto.response.BookingResponse;
+import com.hotel.booking.dto.response.*;
 import com.hotel.booking.service.BookingService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -34,11 +32,11 @@ public class BookingController {
     }
     //create a new booking
     @PostMapping
-    public ResponseEntity<String> createBooking(
+    public ResponseEntity<BookingResponse> createBooking(
             @Valid @RequestBody BookingCreateRequest request) {
         BookingResponse response = bookingService.createBooking(request);
-        return ResponseEntity.status(HttpStatus.CREATED)
-                .body("booking created successfully");
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+
     }
     //get booking by id
     @GetMapping("/{id}")
@@ -101,5 +99,28 @@ public class BookingController {
         List<BookingResponse> responses = bookingService.getTodayCheckOuts(hotelId);
         return ResponseEntity.ok(
                 ApiResponse.success(responses, "Today's check-outs retrieved successfully"));
+    }
+    // Search available hotels by city and dates
+    @GetMapping("/search-hotels")
+    public ResponseEntity<ApiResponse<List<AvailableHotelDto>>> searchAvailableHotels(
+            @RequestParam String city,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkInDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkOutDate) {
+
+        List<AvailableHotelDto> hotels = bookingService.searchAvailableHotels(city, checkInDate, checkOutDate);
+        return ResponseEntity.ok(
+                ApiResponse.success(hotels, hotels.size() + " hotels found with availability"));
+    }
+
+    //  Get available room types for a hotel
+    @GetMapping("/room-types")
+    public ResponseEntity<ApiResponse<List<AvailableRoomTypeDto>>> getAvailableRoomTypes(
+            @RequestParam Long hotelId,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkInDate,
+            @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate checkOutDate) {
+
+        List<AvailableRoomTypeDto> roomTypes = bookingService.getAvailableRoomTypes(hotelId, checkInDate, checkOutDate);
+        return ResponseEntity.ok(
+                ApiResponse.success(roomTypes, roomTypes.size() + " room types available"));
     }
 }

@@ -74,6 +74,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             @Param("checkInDate") LocalDate checkInDate,
             @Param("checkOutDate") LocalDate checkOutDate
     );
+
     @Query("""
         SELECT b FROM Booking b
         WHERE b.hotelId = :hotelId
@@ -85,6 +86,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             @Param("hotelId") Long hotelId,
             @Param("date") LocalDate date
     );
+
     @Query("""
         SELECT b FROM Booking b
         WHERE b.hotelId = :hotelId
@@ -96,6 +98,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             @Param("hotelId") Long hotelId,
             @Param("date") LocalDate date
     );
+
     @Query("""
         SELECT b FROM Booking b
         WHERE b.userId = :userId
@@ -126,6 +129,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
         AND b.status IN ('CONFIRMED', 'CHECKED_IN')
         """)
     Long countActiveBookings(@Param("hotelId") Long hotelId);
+
     List<Booking> findByCheckInDateAndStatus(LocalDate checkInDate, BookingStatus status);
     List<Booking> findByCheckOutDateAndStatus(LocalDate checkOutDate, BookingStatus status);
 
@@ -135,4 +139,18 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
         AND b.checkInDate < :date
         """)
     List<Booking> findOverdueConfirmedBookings(@Param("date") LocalDate date);
+
+    @Query("""
+        SELECT DISTINCT b.roomId FROM Booking b
+        WHERE b.hotelId = :hotelId
+        AND b.status NOT IN ('CANCELLED', 'CHECKED_OUT')
+        AND (
+            (b.checkInDate <= :checkOutDate AND b.checkOutDate >= :checkInDate)
+        )
+        """)
+    List<Long> findBookedRoomIdsForDateRange(
+            @Param("hotelId") Long hotelId,
+            @Param("checkInDate") LocalDate checkInDate,
+            @Param("checkOutDate") LocalDate checkOutDate
+    );
 }

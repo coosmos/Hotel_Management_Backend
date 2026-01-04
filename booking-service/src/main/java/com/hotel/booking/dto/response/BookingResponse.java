@@ -16,9 +16,7 @@ import java.time.LocalDateTime;
 @AllArgsConstructor
 public class BookingResponse {
     private Long id;
-    private Long userId;
-    private Long hotelId;
-    private Long roomId;
+    private String hotelName;
     private String roomNumber;
     private String roomType;
     private LocalDate checkInDate;
