@@ -123,4 +123,15 @@ public class BookingController {
         return ResponseEntity.ok(
                 ApiResponse.success(roomTypes, roomTypes.size() + " room types available"));
     }
+    // update payment status
+    @PatchMapping("/{id}/payment")
+    public ResponseEntity<ApiResponse<BookingResponse>> updatePaymentStatus(
+            @PathVariable Long id,
+            @RequestParam String status,
+            @RequestParam(required = false, defaultValue = "CASH") String method) {
+
+        BookingResponse response = bookingService.updatePaymentStatus(id, status, method);
+        return ResponseEntity.ok(
+                ApiResponse.success(response, "Payment status updated successfully"));
+    }
 }

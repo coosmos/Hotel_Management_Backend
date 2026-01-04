@@ -28,4 +28,5 @@ public interface BookingService {
     // new methods for search functionality
     List<AvailableHotelDto> searchAvailableHotels(String city, LocalDate checkInDate, LocalDate checkOutDate);
     List<AvailableRoomTypeDto> getAvailableRoomTypes(Long hotelId, LocalDate checkInDate, LocalDate checkOutDate);
+    BookingResponse updatePaymentStatus(Long bookingId, String paymentStatus, String paymentMethod);
 }

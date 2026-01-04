@@ -31,6 +31,10 @@ public class BookingResponse {
     private LocalDate cancelledAt;
     private LocalDate checkedInAt;
     private LocalDate checkedOutAt;
+    private String paymentStatus;
+    private String paymentMethod;
+    private LocalDateTime paidAt;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
+
 }

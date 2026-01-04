@@ -82,22 +82,18 @@ public class BookingServiceImpl implements BookingService {
         log.debug("Found {} hotels in {}", allHotels.size(), city);
 
         List<AvailableHotelDto> availableHotels = new ArrayList<>();
-
         for (HotelDto hotel : allHotels) {
             // get all rooms for this hotel
             List<RoomDto> allRooms = hotelServiceClient.getRoomsByHotelId(hotel.getId());
-
             // get booked room ids for date range
             List<Long> bookedRoomIds = bookingRepository.findBookedRoomIds(
                     hotel.getId(), checkInDate, checkOutDate
             );
-
             // calculate available rooms
             long availableCount = allRooms.stream()
                     .filter(room -> room.getIsActive())
                     .filter(room -> !bookedRoomIds.contains(room.getId()))
                     .count();
-
             // only include hotels with available rooms
             if (availableCount > 0) {
                 AvailableHotelDto availableHotel = new AvailableHotelDto();
@@ -119,7 +115,6 @@ public class BookingServiceImpl implements BookingService {
                 availableHotels.add(availableHotel);
             }
         }
-
         log.info("Found {} hotels with availability in {}", availableHotels.size(), city);
         return availableHotels;
     }
@@ -168,6 +163,29 @@ public class BookingServiceImpl implements BookingService {
         log.info("Found {} room types available for hotel {}", roomTypes.size(), hotelId);
         return roomTypes;
     }
+        //endpoint for updating payment status--for future reference
+    @Override
+    @Transactional
+    public BookingResponse updatePaymentStatus(Long bookingId, String paymentStatus, String paymentMethod) {
+        Booking booking = findBookingById(bookingId);
+        UserContext context = authorizationUtil.getUserContext();
+        // only staff can update payment
+        if (!context.canManageBookings()) {
+            throw new UnauthorizedException("Only staff can update payment status");
+        }
+        authorizationUtil.verifyHotelAccess(booking.getHotelId());
+        PaymentStatus newStatus = PaymentStatus.valueOf(paymentStatus.toUpperCase());
+        booking.setPaymentStatus(newStatus);
+        if (newStatus == PaymentStatus.PAID) {
+            booking.setPaymentMethod(paymentMethod);
+            booking.setPaidAt(LocalDateTime.now());
+        }
+        booking.setUpdatedBy(context.getUsername());
+        Booking updatedBooking = bookingRepository.save(booking);
+        log.info("Payment status updated to {} for booking {}", paymentStatus, bookingId);
+        RoomDto room = hotelServiceClient.getRoomById(booking.getRoomId());
+        return mapToResponse(updatedBooking, room);
+    }
 
     @Override
     @Transactional
@@ -180,10 +198,8 @@ public class BookingServiceImpl implements BookingService {
         if (!context.isGuest() && !context.isAdmin()) {
             throw new UnauthorizedException("Only guests can create bookings");
         }
-
-        // validate dates
+         // validate dates
         validateDates(request.getCheckInDate(), request.getCheckOutDate());
-
         // find available room of requested type
         Long assignedRoomId = findAvailableRoomByType(
                 request.getHotelId(),
@@ -406,7 +422,6 @@ public class BookingServiceImpl implements BookingService {
                 .map(this::mapToResponseWithRoom)
                 .collect(Collectors.toList());
     }
-
     @Override
     @Transactional(readOnly = true)
     public List<BookingResponse> getTodayCheckOuts(Long hotelId) {
@@ -421,7 +436,6 @@ public class BookingServiceImpl implements BookingService {
      //* find an available room of specified type for the date range
     private Long findAvailableRoomByType(Long hotelId, String roomType, LocalDate checkIn, LocalDate checkOut) {
         log.debug("Finding available room of type {} for hotel {}", roomType, hotelId);
-
         // get all rooms of this type
         List<RoomDto> allRooms = hotelServiceClient.getRoomsByHotelId(hotelId);
         List<Long> roomsOfType = allRooms.stream()
@@ -451,12 +465,10 @@ public class BookingServiceImpl implements BookingService {
 
         return availableRoom.orElse(null);
     }
-
     private Booking findBookingById(Long bookingId) {
         return bookingRepository.findById(bookingId)
                 .orElseThrow(() -> new ResourceNotFoundException("Booking", "id", bookingId));
     }
-
     private void validateDates(LocalDate checkInDate, LocalDate checkOutDate) {
         LocalDate today = LocalDate.now();
         if (checkInDate.isBefore(today)) {
@@ -466,7 +478,6 @@ public class BookingServiceImpl implements BookingService {
             throw new BookingException("Check-out date must be after check-in date");
         }
     }
-
     private BookingResponse mapToResponse(Booking b, RoomDto room) {
         return BookingResponse.builder()
                 .id(b.getId())
@@ -479,6 +490,9 @@ public class BookingServiceImpl implements BookingService {
                 .status(b.getStatus())
                 .guestName(b.getGuestName())
                 .guestEmail(b.getGuestEmail())
+                .paymentStatus(b.getPaymentStatus() != null ? b.getPaymentStatus().name() : "PENDING")
+                .paymentMethod(b.getPaymentMethod())
+                .paidAt(b.getPaidAt())
                 .guestPhone(b.getGuestPhone())
                 .numberOfGuests(b.getNumberOfGuests())
                 .numberOfNights(b.getNumberOfNights())
