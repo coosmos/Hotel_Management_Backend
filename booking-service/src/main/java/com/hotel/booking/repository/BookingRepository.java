@@ -201,15 +201,15 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     // revenue by date range
     @Query("""
     SELECT new com.hotel.booking.dto.analytics.RevenueByDateDto(
-        b.checkInDate,
+       CAST(b.createdAt as LocalDate),
         COUNT(b),
         COALESCE(SUM(b.totalAmount), 0)
     )
     FROM Booking b
     WHERE b.status != 'CANCELLED'
-    AND b.checkInDate BETWEEN :startDate AND :endDate
-    GROUP BY b.checkInDate
-    ORDER BY b.checkInDate
+    AND CAST(b.createdAt AS LocalDate) BETWEEN :startDate AND :endDate
+    GROUP BY CAST(b.createdAt AS LocalDate)
+    ORDER BY CAST(b.createdAt AS LocalDate)
     """)
     List<RevenueByDateDto> getRevenueByDateRange(
             @Param("startDate") LocalDate startDate,
