@@ -1,4 +1,4 @@
-package com.hotel.controllers;
+package com.hotel.controller;
 
 public class RoomController {
 }
