@@ -134,7 +134,6 @@ class AuthControllerTest {
     void testRegister_BlankUsername() throws Exception {
         // given
         guestRegisterRequest.setUsername("");
-
         // when & then
         mockMvc.perform(post("/api/auth/register")
                         .with(csrf())
