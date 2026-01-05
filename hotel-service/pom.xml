@@ -75,6 +75,11 @@
             <artifactId>spring-boot-starter-actuator</artifactId>
         </dependency>
 
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-config</artifactId>
+        </dependency>
+
         <!-- ModelMapper for DTO conversion -->
         <dependency>
             <groupId>org.modelmapper</groupId>
