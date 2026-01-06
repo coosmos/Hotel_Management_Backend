@@ -31,7 +31,10 @@ The system uses microservices architecture with the following components:
   mvn package -DskipTests
   docker compose up --build -d
   ```
-  
+
+## Architecture
+<img width="1456" height="1469" alt="image" src="https://github.com/user-attachments/assets/ee69ce34-2733-441e-b44c-0895af6fd5d8" />
+
 ## Services
 
 ### 1. Auth Service (Port 8081)
@@ -233,6 +236,10 @@ Sends email notifications based on booking events.
 - `checkin-reminder` - 24 hours before check-in
 - `guest-checked-in` - Check-in completed
 - `guest-checked-out` - Check-out completed
+
+<img width="1545" height="803" alt="image" src="https://github.com/user-attachments/assets/c874c86e-e202-481f-b0db-055e371a70fe" />
+<img width="1564" height="804" alt="image" src="https://github.com/user-attachments/assets/2a3a61b0-aedf-4923-b128-31163888304f" />
+<img width="1566" height="778" alt="image" src="https://github.com/user-attachments/assets/055944ae-3735-4e3c-8f3e-1ee3cf419dd7" />
 
 **Email Templates:**
 1. **Booking Confirmation** - Sent when booking created
