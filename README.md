@@ -35,6 +35,37 @@ The system uses microservices architecture with the following components:
 ## Architecture
 <img width="1456" height="1469" alt="image" src="https://github.com/user-attachments/assets/ee69ce34-2733-441e-b44c-0895af6fd5d8" />
 
+## Eureka
+<img width="1910" height="907" alt="image" src="https://github.com/user-attachments/assets/8c140560-92b3-487b-8644-086468756071" />
+
+## Dockerized and Jenkins pipeline ran
+<img width="1280" height="619" alt="image" src="https://github.com/user-attachments/assets/6c6dc1a6-0d27-482c-9a05-1361f5b4b95f" />
+
+## Notifications  Reminders
+--
+
+<img width="1545" height="803" alt="image" src="https://github.com/user-attachments/assets/c874c86e-e202-481f-b0db-055e371a70fe" />
+--
+<img width="1564" height="804" alt="image" src="https://github.com/user-attachments/assets/2a3a61b0-aedf-4923-b128-31163888304f" />
+--
+<img width="1566" height="778" alt="image" src="https://github.com/user-attachments/assets/055944ae-3735-4e3c-8f3e-1ee3cf419dd7" />
+--
+
+##  Frontend Screens
+<img width="1912" height="938" alt="image" src="https://github.com/user-attachments/assets/d068a756-2b3a-43f7-9e36-5a8fcf01f235" />
+<img width="1918" height="933" alt="image" src="https://github.com/user-attachments/assets/c65fff0f-ac2c-46c4-9b4f-7c01cb606041" />
+<img width="1910" height="937" alt="image" src="https://github.com/user-attachments/assets/bf39fb72-81ba-4d01-af47-4eecec99efba" />
+<img width="1913" height="940" alt="image" src="https://github.com/user-attachments/assets/a763349f-5042-4c25-a513-c0787a4d7081" />
+<img width="1911" height="941" alt="image" src="https://github.com/user-attachments/assets/e108ebd9-434a-425d-afa6-582791bc9745" />
+<img width="1917" height="936" alt="image" src="https://github.com/user-attachments/assets/017f3e56-7f29-4e6c-9aec-4aee69a9cf03" />
+<img width="1913" height="943" alt="image" src="https://github.com/user-attachments/assets/35310c1f-f02e-4698-a9dc-ade940e11b43" />
+<img width="1906" height="941" alt="image" src="https://github.com/user-attachments/assets/eadcabe6-fc5c-42d1-bb70-b9da1043f188" />
+<img width="1901" height="936" alt="image" src="https://github.com/user-attachments/assets/5bdbbe01-e1ad-46b4-9f9e-475d1909096e" />
+<img width="1908" height="931" alt="image" src="https://github.com/user-attachments/assets/57b26e88-3ae9-4ce2-9942-ad9ba0d79c90" />
+<img width="1917" height="934" alt="image" src="https://github.com/user-attachments/assets/402581fc-6ca3-429a-a137-1b0dfabaa0d0" />
+<img width="603" height="854" alt="image" src="https://github.com/user-attachments/assets/ad77805b-2c68-40f5-8edb-7daad00495cb" />
+
+
 ## Services
 
 ### 1. Auth Service (Port 8081)
