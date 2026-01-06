@@ -265,7 +265,7 @@ Sends email notifications based on booking events.
 
 Centralized configuration management.
 
-**Source:** Git repository (https://github.com/ashutosh2706/hotel-config-server)
+**Source:** Git repository (https://github.com/coosmos/hotel-config-server)
 
 **Configuration Files:**
 - `{service-name}.properties` - Base config
