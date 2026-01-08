@@ -336,6 +336,7 @@ Service discovery and registration.
 ---
 
 ## Database Schema
+<img width="990" height="741" alt="image" src="https://github.com/user-attachments/assets/aa924092-f194-4664-9f25-e337725114b9" />
 
 ### auth_db
 ```sql
