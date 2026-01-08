@@ -1,0 +1,39 @@
+pipeline {
+    agent any
+
+    parameters {
+        string(name: 'GIT_BRANCH', defaultValue: 'feature/configserver',
+               description: 'Git branch to build')
+    }
+
+    stages {
+
+        stage('Checkout') {
+            steps {
+                git branch: params.GIT_BRANCH,
+                    url: 'https://github.com/coosmos/Hotel_Management_Backend.git'
+            }
+        }
+
+        stage('Build Maven (Root)') {
+            steps {
+                bat 'mvn  package -DskipTests'
+            }
+        }
+
+        stage('Build Docker Images') {
+            steps {
+                bat 'docker compose build'
+            }
+        }
+
+        stage('Run Containers') {
+            steps {
+                bat '''
+                docker compose down --remove-orphans
+                docker compose up -d
+                '''
+            }
+        }
+    }
+}
